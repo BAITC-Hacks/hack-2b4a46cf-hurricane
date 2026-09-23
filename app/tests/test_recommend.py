@@ -55,6 +55,7 @@ def assert_explanations_are_distinct(cards):
     assert len(set(texts)) == len(texts)
     for text in texts:
         assert 20 <= len(text) <= 400
+        assert len(explain.SENTENCE_END.findall(text)) <= explain.MAX_SENTENCES
         assert not any(phrase in text.lower() for phrase in BANNED_PHRASES)
 
 
@@ -142,6 +143,12 @@ def test_passed_vendors_satisfy_every_condition(catalog):
         {"explanations": {"HK-35215": "Отличный выбор для вашего мероприятия, рекомендуем."}},
         {"explanations": {"HK-35215": "Коротко."}},
         {"explanations": {"HK-35215": "Цена ориентировочная, уточняйте, зато свободен и подходит"}},
+        {
+            "explanations": {
+                "HK-35215": "Берёт свадьбу за 800 000 ₸, это 53% бюджета, остаётся 700 000"
+            }
+        },
+        {"explanations": {"HK-77838": "Ведёт свадьбы на английском, 1 000 000 ₸ это 67% бюджета"}},
     ],
 )
 def test_bad_llm_answer_falls_back_to_template_without_reordering(catalog, monkeypatch, answer):

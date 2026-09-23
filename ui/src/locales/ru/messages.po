@@ -25,7 +25,7 @@ msgstr "EventMatch"
 msgid "Альтернатива"
 msgstr "Альтернатива"
 
-#: src/components/VendorCard.tsx:105
+#: src/components/VendorCard.tsx:103
 msgid "без привязки к часам"
 msgstr "без привязки к часам"
 
@@ -101,7 +101,7 @@ msgstr "до {0} ₸"
 #. placeholder {0}: vendor.max_hours
 #: src/components/ResultsFilters.tsx:35
 #: src/components/SearchForm.tsx:209
-#: src/components/VendorCard.tsx:105
+#: src/components/VendorCard.tsx:103
 msgid "до {0} ч"
 msgstr "до {0} ч"
 
@@ -219,11 +219,11 @@ msgid "нужный язык"
 msgstr "нужный язык"
 
 #. placeholder {0}: new Intl.NumberFormat(i18n.locale).format(vendor.price_from_kzt)
-#: src/components/VendorCard.tsx:86
+#: src/components/VendorCard.tsx:85
 msgid "от {0} ₸"
 msgstr "от {0} ₸"
 
-#: src/components/VendorCard.tsx:90
+#: src/components/VendorCard.tsx:89
 msgid "Оценочная цена — уточните у подрядчика"
 msgstr "Оценочная цена — уточните у подрядчика"
 
@@ -285,13 +285,13 @@ msgstr "Попробуйте другие условия"
 msgid "Попробуйте изменить дату, бюджет или город."
 msgstr "Попробуйте изменить дату, бюджет или город."
 
-#: src/components/VendorCard.tsx:46
-msgid "Премиум"
-msgstr "Премиум"
-
-#: src/components/VendorCard.tsx:144
+#: src/components/VendorCard.tsx:142
 msgid "Профиль из каталога"
 msgstr "Профиль из каталога"
+
+#: src/components/VendorCard.tsx:46
+msgid "Самый дорогой в бюджете"
+msgstr "Самый дорогой в бюджете"
 
 #: src/components/SearchForm.tsx:248
 msgid "Сбросить фильтры"
@@ -301,7 +301,7 @@ msgstr "Сбросить фильтры"
 msgid "свободен на дату"
 msgstr "свободен на дату"
 
-#: src/components/VendorCard.tsx:140
+#: src/components/VendorCard.tsx:138
 msgid "Синтетический профиль"
 msgstr "Синтетический профиль"
 
@@ -333,7 +333,7 @@ msgstr "Формат"
 msgid "Формат «{format}» здесь никто из этой категории не берёт. Попробуйте другой город."
 msgstr "Формат «{format}» здесь никто из этой категории не берёт. Попробуйте другой город."
 
-#: src/components/VendorCard.tsx:116
+#: src/components/VendorCard.tsx:114
 msgid "Что совпало с заказом"
 msgstr "Что совпало с заказом"
 

@@ -6,7 +6,7 @@ from src.models import Vendor
 from src.schemas import Language, MatchedOn, RecommendIn, Role
 
 ROLE_FACTS = {
-    "best_match": "роль карточки: больше всего совпадений с заказом",
+    "best_match": "роль карточки: точнее всех попадает в заказ, больше всех совпавших условий",
     "best_price": "роль карточки: самая низкая цена среди свободных и подходящих",
     "premium": "роль карточки: самый дорогой вариант, который укладывается в бюджет",
 }
@@ -28,30 +28,51 @@ def get_language_labels(values: list[str]) -> str:
     return ", ".join(Language(value).label for value in values)
 
 
-def get_alternative_reason(pick: Pick, picks: list[Pick]) -> str:
+def has_hours_reserve(vendor: Vendor, order: RecommendIn) -> bool:
+    return vendor.max_hours is None or vendor.max_hours >= (order.duration_hours or 0) + 2
+
+
+def get_alternative_gaps(pick: Pick, best: Pick, order: RecommendIn) -> list[str]:
+    """Every scoring component where the best match beats this vendor: the list must be complete,
+    otherwise "only" in the explanation is a lie."""
+    vendor, leader = pick.vendor, best.vendor
+    gaps = []
+    if "description" in best.matched_on and "description" not in pick.matched_on:
+        gaps.append("молчит о формате в описании")
+    extra_languages = set(leader.languages) - set(vendor.languages)
+    if extra_languages:
+        spoken = " и ".join(Language(value).label for value in sorted(extra_languages))
+        gaps.append(f"у первого ещё {spoken}")
+    if has_hours_reserve(leader, order) and not has_hours_reserve(vendor, order):
+        gaps.append("меньше запаса по часам")
+    if vendor.synthetic and not leader.synthetic:
+        gaps.append("профиль синтетический")
+    if vendor.price_imputed and not leader.price_imputed:
+        gaps.append("цена в каталоге оценочная")
+    return gaps
+
+
+def get_alternative_reason(pick: Pick, picks: list[Pick], order: RecommendIn) -> str:
     """The concrete gap to the best match: "one more option" makes the card interchangeable."""
     best = next((other for other in picks if other.role == "best_match"), None)
     if best is None:
         return "ещё один вариант, проходящий все условия"
-    vendor, leader = pick.vendor, best.vendor
-    if "description" in best.matched_on and "description" not in pick.matched_on:
-        return "проходит все условия, уступает первому только тем, что молчит о формате в описании"
-    if vendor.synthetic and not leader.synthetic:
-        return "проходит все условия, уступает первому только тем, что профиль синтетический"
-    if vendor.price_imputed and not leader.price_imputed:
-        return "проходит все условия, уступает первому только тем, что цена в каталоге оценочная"
-    if vendor.price_from_kzt < leader.price_from_kzt:
-        saving = format_kzt(leader.price_from_kzt - vendor.price_from_kzt)
-        return f"проходит все условия и дешевле первого на {saving}"
-    if vendor.price_from_kzt > leader.price_from_kzt:
-        extra = format_kzt(vendor.price_from_kzt - leader.price_from_kzt)
-        return f"проходит все условия, дороже первого на {extra}"
+    gaps = get_alternative_gaps(pick, best, order)
+    if len(gaps) == 1:
+        return f"проходит все условия, уступает первому только тем, что {gaps[0]}"
+    if gaps:
+        return "проходит все условия, уступает первому по мелочам: " + ", ".join(gaps)
+    price_gap = pick.vendor.price_from_kzt - best.vendor.price_from_kzt
+    if price_gap < 0:
+        return f"проходит все условия и дешевле первого на {format_kzt(-price_gap)}"
+    if price_gap > 0:
+        return f"проходит все условия, дороже первого на {format_kzt(price_gap)}"
     return "проходит все условия, по данным каталога равен первому"
 
 
-def get_role_fact(pick: Pick, picks: list[Pick]) -> str:
+def get_role_fact(pick: Pick, picks: list[Pick], order: RecommendIn) -> str:
     if pick.role == "alternative":
-        return "роль карточки: " + get_alternative_reason(pick, picks)
+        return "роль карточки: " + get_alternative_reason(pick, picks, order)
     return ROLE_FACTS[pick.role]
 
 
@@ -83,7 +104,7 @@ def get_pick_facts(
     share = round(vendor.price_from_kzt * 100 / order.budget_kzt)
     remainder = format_kzt(order.budget_kzt - vendor.price_from_kzt)
     facts = [
-        get_role_fact(pick, picks),
+        get_role_fact(pick, picks, order),
         f"цена от {format_kzt(vendor.price_from_kzt)}, "
         f"это {share}% бюджета {format_kzt(order.budget_kzt)}, остаётся {remainder} на остальное",
         f"свободен {order.event_date:%d.%m.%Y}",

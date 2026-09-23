@@ -41,6 +41,9 @@ BANNED_PHRASES = (
 )
 MAX_SENTENCES = 2
 SENTENCE_END = re.compile(r"[.!?]+(?=\s|$)")
+NUMBER = re.compile(r"\d+")
+THOUSANDS_GAP = re.compile(r"(?<=\d)[ \u00a0](?=\d{3}(?!\d))")
+LANGUAGE_STEMS = {"ru": "русск", "kk": "казахск", "en": "английск"}
 # A Latin letter inside a Cyrillic word ("датe") is a model typo the reader will notice.
 MIXED_SCRIPT_WORD = re.compile(r"\b(?=\w*[а-яё])(?=\w*[a-z])\w+\b", re.IGNORECASE)
 SYSTEM_PROMPT = (Path(__file__).parent / "explain_prompt.md").read_text(encoding="utf-8")
@@ -94,29 +97,57 @@ def get_template_explanation(
         matches.append("сам пишет о нём в описании")
     if order.languages:
         matches.append(f"работает на нужных языках: {get_language_labels(order.languages)}")
+    # Exactly two sentences, like the LLM is asked for: the lead with the price, then one detail.
     lead = {
         "best_price": f"Самый бережный к бюджету: от {price}, остаётся {remainder} на остальное.",
-        "premium": f"Если хочется размаха: самый дорогой из тех, кто укладывается в {budget}, "
-        f"от {price}, запас всего {remainder}.",
-        "best_match": f"Точнее всех попадает в заказ: {', '.join(matches)}. "
-        f"От {price}, остаётся {remainder} на остальное.",
-        "alternative": f"{get_alternative_reason(pick, picks).capitalize()}: от {price}, "
+        "premium": f"Самый дорогой из тех, кто укладывается в {budget}: от {price}, "
+        f"запас всего {remainder}.",
+        "best_match": f"Точнее всех попадает в заказ: {', '.join(matches)}, "
+        f"от {price}, остаётся {remainder} на остальное.",
+        "alternative": f"{get_alternative_reason(pick, picks, order).capitalize()}: от {price}, "
         f"остаётся {remainder} на остальное.",
     }[pick.role]
-    note = " Цена ориентировочная, уточняйте." if vendor.price_imputed else ""
-    return f"{lead} {get_template_second_sentence(pick, picks, order, busy, pool)}{note}"
+    second = get_template_second_sentence(pick, picks, order, busy, pool)
+    if vendor.price_imputed:
+        second = second.rstrip(".") + "; цена ориентировочная, уточняйте."
+    return f"{lead} {second}"
 
 
-def is_valid_explanation(text: object, vendor: Vendor) -> bool:
+def get_numbers(text: str) -> set[str]:
+    return set(NUMBER.findall(THOUSANDS_GAP.sub("", text)))
+
+
+def get_rejection_reason(text: object, vendor: Vendor, facts: list[str]) -> str | None:
+    """Why an LLM text is not shown. None means it passed every check."""
     if not isinstance(text, str) or not 20 <= len(text) <= 320:
-        return False
-    if len(SENTENCE_END.findall(text)) > MAX_SENTENCES or MIXED_SCRIPT_WORD.search(text):
-        return False
+        return "length"
+    if len(SENTENCE_END.findall(text)) > MAX_SENTENCES:
+        return "more than two sentences"
+    if MIXED_SCRIPT_WORD.search(text):
+        return "latin letter inside a russian word"
     lower = text.lower()
     # The LLM likes to add "estimated price" on its own: a fact absent from the catalog is a lie.
     if not vendor.price_imputed and ("ориентиров" in lower or "оценочн" in lower):
-        return False
-    return not any(phrase in lower for phrase in BANNED_PHRASES)
+        return "estimated price invented"
+    # Every number must come from the facts or the description: no self-computed prices or shares.
+    known = " ".join(facts) + " " + vendor.description
+    invented_numbers = get_numbers(text) - get_numbers(known)
+    if invented_numbers:
+        return f"numbers not in facts: {sorted(invented_numbers)}"
+    # A language must be the vendor's own or named by a fact (the leader's extra language).
+    known_lower = known.lower()
+    for code, stem in LANGUAGE_STEMS.items():
+        if stem in lower and code not in vendor.languages and stem not in known_lower:
+            return f"language not in profile: {stem}"
+    banned = [phrase for phrase in BANNED_PHRASES if phrase in lower]
+    return f"banned phrase: {banned[0]}" if banned else None
+
+
+def is_valid_explanation(text: object, vendor: Vendor, facts: list[str]) -> bool:
+    reason = get_rejection_reason(text, vendor, facts)
+    if reason:
+        logger.warning("explanation for %s falls back to template: %s", vendor.id, reason)
+    return reason is None
 
 
 async def fetch_llm_explanations(
@@ -149,7 +180,7 @@ async def build_cards(
     for pick in picks:
         text = llm_texts.get(pick.vendor.id)
         vendor = pick.vendor
-        is_llm = is_valid_explanation(text, vendor)
+        is_llm = is_valid_explanation(text, vendor, facts[vendor.id])
         cards.append(
             VendorCardOut(
                 id=vendor.id,

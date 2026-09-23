@@ -1,9 +1,9 @@
 import { Trans, useLingui } from "@lingui/react/macro";
 import {
   BadgePercent,
+  Banknote,
   Check,
   Clock,
-  Crown,
   Languages,
   MapPin,
   PartyPopper,
@@ -24,7 +24,7 @@ type MatchedOn = Schemas["VendorCardOut"]["matched_on"][number];
 const roleIcons: Record<Role, LucideIcon> = {
   best_match: Sparkles,
   best_price: BadgePercent,
-  premium: Crown,
+  premium: Banknote,
   alternative: Shuffle,
 };
 
@@ -43,7 +43,7 @@ export function VendorCard({ vendor }: { vendor: Vendor }) {
   const roleLabels: Record<Role, string> = {
     best_match: t`Лучшее совпадение`,
     best_price: t`Лучшая цена`,
-    premium: t`Премиум`,
+    premium: t`Самый дорогой в бюджете`,
     alternative: t`Альтернатива`,
   };
   const matchedLabels: Record<MatchedOn, string> = {
@@ -66,33 +66,31 @@ export function VendorCard({ vendor }: { vendor: Vendor }) {
       }
     >
       <CardHeader className="grid gap-3">
+        {isRecommendation && RoleIcon && (
+          <span
+            className={
+              vendor.role === "best_match"
+                ? "inline-flex w-fit items-center gap-1.5 rounded-full bg-primary px-2.5 py-1 text-xs font-semibold whitespace-nowrap text-primary-foreground"
+                : "inline-flex w-fit items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs font-semibold whitespace-nowrap text-foreground"
+            }
+          >
+            <RoleIcon className="size-3.5" aria-hidden="true" />
+            {roleLabels[vendor.role]}
+          </span>
+        )}
         <div className="flex items-start justify-between gap-3">
-          {isRecommendation && RoleIcon ? (
-            <span
-              className={
-                vendor.role === "best_match"
-                  ? "inline-flex items-center gap-1.5 rounded-full bg-primary px-2.5 py-1 text-xs font-semibold text-primary-foreground"
-                  : "inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-foreground"
-              }
-            >
-              <RoleIcon className="size-3.5" aria-hidden="true" />
-              {roleLabels[vendor.role]}
-            </span>
-          ) : (
-            <span />
-          )}
-          <div className="text-right">
+          <CardTitle className="text-lg leading-6 font-semibold">{vendor.name}</CardTitle>
+          <div className="shrink-0 text-right">
             <p className="text-lg leading-6 font-semibold tabular-nums whitespace-nowrap">
               <Trans>от {new Intl.NumberFormat(i18n.locale).format(vendor.price_from_kzt)} ₸</Trans>
             </p>
             {vendor.price_imputed && (
-              <p className="max-w-44 text-xs leading-4 text-muted-foreground">
+              <p className="max-w-40 text-xs leading-4 text-muted-foreground">
                 <Trans>Оценочная цена — уточните у подрядчика</Trans>
               </p>
             )}
           </div>
         </div>
-        <CardTitle className="text-lg leading-6 font-semibold">{vendor.name}</CardTitle>
         <div className="flex flex-wrap gap-1.5">
           <Feature icon={MapPin}>{vendor.city.label}</Feature>
           <Feature icon={Tag}>

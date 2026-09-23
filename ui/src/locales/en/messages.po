@@ -25,7 +25,7 @@ msgstr "EventMatch"
 msgid "Альтернатива"
 msgstr "Alternative"
 
-#: src/components/VendorCard.tsx:105
+#: src/components/VendorCard.tsx:103
 msgid "без привязки к часам"
 msgstr "not tied to hours"
 
@@ -101,7 +101,7 @@ msgstr "up to {0} ₸"
 #. placeholder {0}: vendor.max_hours
 #: src/components/ResultsFilters.tsx:35
 #: src/components/SearchForm.tsx:209
-#: src/components/VendorCard.tsx:105
+#: src/components/VendorCard.tsx:103
 msgid "до {0} ч"
 msgstr "up to {0} h"
 
@@ -219,11 +219,11 @@ msgid "нужный язык"
 msgstr "right language"
 
 #. placeholder {0}: new Intl.NumberFormat(i18n.locale).format(vendor.price_from_kzt)
-#: src/components/VendorCard.tsx:86
+#: src/components/VendorCard.tsx:85
 msgid "от {0} ₸"
 msgstr "from {0} ₸"
 
-#: src/components/VendorCard.tsx:90
+#: src/components/VendorCard.tsx:89
 msgid "Оценочная цена — уточните у подрядчика"
 msgstr "Estimated price — confirm with the vendor"
 
@@ -285,13 +285,13 @@ msgstr "Try other conditions"
 msgid "Попробуйте изменить дату, бюджет или город."
 msgstr "Try changing the date, budget or city."
 
-#: src/components/VendorCard.tsx:46
-msgid "Премиум"
-msgstr "Premium"
-
-#: src/components/VendorCard.tsx:144
+#: src/components/VendorCard.tsx:142
 msgid "Профиль из каталога"
 msgstr "Catalog profile"
+
+#: src/components/VendorCard.tsx:46
+msgid "Самый дорогой в бюджете"
+msgstr "Highest price within budget"
 
 #: src/components/SearchForm.tsx:248
 msgid "Сбросить фильтры"
@@ -301,7 +301,7 @@ msgstr "Reset filters"
 msgid "свободен на дату"
 msgstr "free on the date"
 
-#: src/components/VendorCard.tsx:140
+#: src/components/VendorCard.tsx:138
 msgid "Синтетический профиль"
 msgstr "Synthetic profile"
 
@@ -333,7 +333,7 @@ msgstr "Format"
 msgid "Формат «{format}» здесь никто из этой категории не берёт. Попробуйте другой город."
 msgstr "Nobody in this category here takes the “{format}” format. Try another city."
 
-#: src/components/VendorCard.tsx:116
+#: src/components/VendorCard.tsx:114
 msgid "Что совпало с заказом"
 msgstr "What matched the order"
 

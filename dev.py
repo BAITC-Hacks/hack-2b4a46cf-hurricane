@@ -125,12 +125,13 @@ def set_env_value(key: str, value: str) -> None:
     ENV_FILE.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-def prepare_env() -> dict[str, str]:
-    if not ENV_FILE.exists():
-        shutil.copyfile(ENV_EXAMPLE, ENV_FILE)
-        print(f"\n.env создан из .env.example: {ENV_FILE}")
-    values = read_env()
+def is_stack_running(compose: list[str]) -> bool:
+    listing = run([*compose, "ps", "-q"], cwd=ROOT, capture_output=True)
+    return listing.returncode == 0 and bool(listing.stdout.strip())
 
+
+def assign_free_ports(values: dict[str, str]) -> None:
+    reassigned = False
     for key, default in DEFAULT_PORTS.items():
         configured = int(values.get(key) or default)
         if not is_port_busy(configured):
@@ -140,14 +141,38 @@ def prepare_env() -> dict[str, str]:
         new_port = free_port_near(default)
         values[key] = str(new_port)
         set_env_value(key, str(new_port))
+        reassigned = True
         print(f"  порт {default} занят, {key} переназначен на {new_port} (записано в .env)")
+    if not reassigned:
+        return
+    # The frontend and CORS point at host ports, so they move together with the ports.
+    derived = {
+        "VITE_API_URL": f"http://localhost:{values.get('APP_PORT') or DEFAULT_PORTS['APP_PORT']}",
+        "CORS_ORIGINS": f"http://localhost:{values.get('UI_PORT') or DEFAULT_PORTS['UI_PORT']}",
+    }
+    for key, value in derived.items():
+        values[key] = value
+        set_env_value(key, value)
+        print(f"  {key}={value} (записано в .env)")
+
+
+def prepare_env(compose: list[str]) -> dict[str, str]:
+    if not ENV_FILE.exists():
+        shutil.copyfile(ENV_EXAMPLE, ENV_FILE)
+        print(f"\n.env создан из .env.example: {ENV_FILE}")
+    values = read_env()
+    # A running stack of this project already holds its ports: a rerun must reuse them, not move.
+    if is_stack_running(compose):
+        print("  контейнеры проекта уже запущены, порты из .env сохранены")
+    else:
+        assign_free_ports(values)
 
     missing = [
         key for key, placeholder in PLACEHOLDERS.items() if values.get(key, "") in ("", placeholder)
     ]
     if missing:
         print(f"  в .env не заполнены: {', '.join(missing)}.")
-        print("  Стек поднимется, но без них /ask отдаёт 502.")
+        print("  Стек поднимется, но объяснения будут шаблонными, а поиск по смыслу описания выключен.")
     return values
 
 
@@ -184,7 +209,7 @@ def compose_up(compose: list[str]) -> None:
             sys.exit("Podman не отвечает. Запустите машину: podman machine start")
     check_tools(compose)
     enable_git_hooks()
-    values = prepare_env()
+    values = prepare_env(compose)
     print("\nСборка и запуск контейнеров (первый раз 2–4 минуты)...")
     run([*compose, "up", "--build", "-d"], cwd=ROOT, check=True)
     app_port = int(values.get("APP_PORT") or DEFAULT_PORTS["APP_PORT"])

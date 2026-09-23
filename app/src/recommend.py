@@ -12,7 +12,7 @@ from src.db import get_session
 from src.embeddings import fetch_query_embedding, get_description_ranks
 from src.errors import UpstreamError
 from src.explain import build_cards
-from src.facts import Pick
+from src.facts import Pick, has_hours_reserve
 from src.filters import get_rejection_reasons, get_rejections
 from src.models import Vendor
 from src.schemas import EventFormat, MatchedOn, RecommendIn, RecommendOut
@@ -46,10 +46,7 @@ def get_match_score(vendor: Vendor, order: RecommendIn, description_rank: int | 
     score = 3 if is_format_in_description(vendor, order.event_format) else 0
     score += DESCRIPTION_POINTS.get(description_rank, 0)
     score += len(set(vendor.languages) - set(order.languages))
-    has_hours_reserve = (
-        vendor.max_hours is None or vendor.max_hours >= (order.duration_hours or 0) + 2
-    )
-    score += int(has_hours_reserve)
+    score += int(has_hours_reserve(vendor, order))
     score += 2 * int(not vendor.synthetic) + int(not vendor.price_imputed)
     score += int(vendor.price_from_kzt <= order.budget_kzt * 0.8)
     return score
