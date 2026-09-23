@@ -1,33 +1,65 @@
 """Request and response schemas. Validation happens here, once, at the API boundary."""
 
 from datetime import date
+from enum import StrEnum
 from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
 
-# Closed sets taken from the catalog: the frontend gets them as union types via `yarn api:types`.
-City = Literal["Алматы", "Астана", "Зарубежье"]
-EventFormat = Literal["свадьба", "той", "корпоратив", "конференция", "юбилей", "день рождения"]
-Language = Literal["русский", "казахский", "английский"]
-Category = Literal[
-    "Ведущий",
-    "Ведущий церемонии",
-    "Фотограф",
-    "Видеограф",
-    "Фото и видеобудки",
-    "Лайв-бэнд",
-    "Инструменталист",
-    "Национальный ансамбль",
-    "Танцевальный коллектив",
-    "Шоу-программа",
-    "Банкетный зал",
-    "Ресторан",
-    "Отель",
-    "Загородная площадка",
-    "Флорист",
-    "Декоратор",
-    "Подарки и сувениры",
-]
+
+class Option(StrEnum):
+    """Closed catalog set: latin `value` goes to URLs and the DB, `label` is shown to people."""
+
+    label: str
+
+    def __new__(cls, value: str, label: str) -> "Option":
+        member = str.__new__(cls, value)
+        member._value_ = value
+        member.label = label
+        return member
+
+
+class City(Option):
+    almaty = "almaty", "Алматы"
+    astana = "astana", "Астана"
+    abroad = "abroad", "Зарубежье"
+
+
+class EventFormat(Option):
+    wedding = "wedding", "свадьба"
+    toi = "toi", "той"
+    corporate = "corporate", "корпоратив"
+    conference = "conference", "конференция"
+    anniversary = "anniversary", "юбилей"
+    birthday = "birthday", "день рождения"
+
+
+class Language(Option):
+    ru = "ru", "русский"
+    kk = "kk", "казахский"
+    en = "en", "английский"
+
+
+class Category(Option):
+    host = "host", "Ведущий"
+    ceremony_host = "ceremony-host", "Ведущий церемонии"
+    photographer = "photographer", "Фотограф"
+    videographer = "videographer", "Видеограф"
+    photo_booth = "photo-booth", "Фото и видеобудки"
+    florist = "florist", "Флорист"
+    decorator = "decorator", "Декоратор"
+    gifts = "gifts", "Подарки и сувениры"
+    live_band = "live-band", "Лайв-бэнд"
+    instrumentalist = "instrumentalist", "Инструменталист"
+    national_ensemble = "national-ensemble", "Национальный ансамбль"
+    dance_group = "dance-group", "Танцевальный коллектив"
+    show = "show", "Шоу-программа"
+    banquet_hall = "banquet-hall", "Банкетный зал"
+    restaurant = "restaurant", "Ресторан"
+    hotel = "hotel", "Отель"
+    country_venue = "country-venue", "Загородная площадка"
+
+
 Outcome = Literal["matched", "no_category_in_city", "no_candidates_pass"]
 Role = Literal["best_match", "best_price", "premium", "alternative"]
 RejectReason = Literal["busy", "format", "budget", "duration", "language"]
@@ -40,6 +72,43 @@ CATALOG_DATE_TO = date(2026, 12, 31)
 
 class HealthOut(BaseModel):
     status: str
+
+
+class OptionOut(BaseModel):
+    value: str
+    label: str
+
+
+def get_option(member: Option) -> OptionOut:
+    return OptionOut(value=member.value, label=member.label)
+
+
+def get_options(values: list[str], option: type[Option]) -> list[OptionOut]:
+    return [get_option(option(value)) for value in values]
+
+
+class CatalogOptionsOut(BaseModel):
+    cities: list[OptionOut]
+    categories: list[OptionOut]
+    event_formats: list[OptionOut]
+    languages: list[OptionOut]
+    date_from: date
+    date_to: date
+
+
+class VendorOut(BaseModel):
+    id: str
+    name: str
+    categories: list[OptionOut]
+    city: OptionOut
+    price_from_kzt: int
+    event_formats: list[OptionOut]
+    languages: list[OptionOut]
+    max_hours: int | None
+    description: str
+    synthetic: bool
+    price_imputed: bool
+    city_imputed: bool
 
 
 class RecommendIn(BaseModel):
@@ -61,17 +130,17 @@ class RecommendIn(BaseModel):
 
     @field_validator("languages")
     @classmethod
-    def remove_duplicate_languages(cls, value: list[str]) -> list[str]:
+    def remove_duplicate_languages(cls, value: list[Language]) -> list[Language]:
         return sorted(set(value))
 
 
 class VendorCardOut(BaseModel):
     id: str
     name: str
-    categories: list[str]
-    city: str
+    categories: list[OptionOut]
+    city: OptionOut
     price_from_kzt: int
-    languages: list[str]
+    languages: list[OptionOut]
     max_hours: int | None
     role: Role
     explanation: str

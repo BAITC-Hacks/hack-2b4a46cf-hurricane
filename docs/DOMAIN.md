@@ -20,7 +20,7 @@
 5. Пользователь видит один из трёх исходов: карточки с объяснениями; «в городе нет такой категории»; «кандидаты есть (N), но никто не прошёл: занято на дату 4, дороже бюджета 2, не берут формат 1». Если карточек меньше трёх, под ними та же расшифровка причин.
 6. Каждый запрос и ответ пишется в `runs` для истории и проверки детерминизма.
 
-Некорректный ввод, который сценарий обязан переживать: дата вне окна 23.09.2026 – 31.12.2026 → 400 с текстом про окно каталога; бюджет ≤ 0 или нечисло → 422; неизвестный город или категория → исход «нет такой категории», не ошибка; OpenAI недоступен → карточки всё равно отдаются с объяснением из шаблона по тем же фактам и флагом `explanation_source: "template"`; пробелы и регистр во входе не важны.
+Некорректный ввод, который сценарий обязан переживать: дата вне окна 23.09.2026 – 31.12.2026 → 400 с текстом про окно каталога; бюджет ≤ 0 или нечисло → 422; значение не из словаря (город, категория, формат, язык) → 422; валидная пара «город + категория», которой нет в каталоге → исход «нет такой категории», не ошибка; OpenAI недоступен → карточки всё равно отдаются с объяснением из шаблона по тем же фактам и флагом `explanation_source: "template"`; пробелы и регистр во входе не важны.
 
 ## 3. Сущности
 
@@ -42,10 +42,24 @@ vendors            (независимый каталог, читается фи
 
 | Шаг | Метод и путь | Вход (схема) | Выход (схема) | Ошибки |
 |---|---|---|---|---|
-| 1 | `GET /catalog/options` | | `CatalogOptionsOut` (`cities`, `categories`, `event_formats`, `languages`, `date_from`, `date_to`) | 500 |
-| 2–5 | `POST /recommend` | `RecommendIn` (`city`, `event_date`, `event_format`, `category`, `budget_kzt`, `duration_hours?`, `language?`) | `RecommendOut` (`outcome: Literal["matched","no_category_in_city","no_candidates_pass"]`, `cards: list[VendorCardOut]`, `rejected: RejectedOut` со счётчиками по причинам, `explanation_source: Literal["llm","template"]`) | 400, 422, 502 |
+| 1 | `GET /catalog/options` | | `CatalogOptionsOut` (`cities`, `categories`, `event_formats`, `languages`: `list[OptionOut]`; `date_from`, `date_to`) | 500 |
+| 1 | `GET /vendors` | | `list[VendorOut]`, весь каталог, сортировка по `id`, без пагинации | 500 |
+| 2–5 | `POST /recommend` | `RecommendIn` (`city`, `event_date`, `event_format`, `category`, `budget_kzt`, `duration_hours?`, `languages: list`, пустой = любой) | `RecommendOut` (`outcome: Literal["matched","no_category_in_city","no_candidates_pass"]`, `cards: list[VendorCardOut]`, `rejected: RejectedOut` со счётчиками по причинам, `explanation_source: Literal["llm","template"]`) | 400, 422, 502 |
 
-`VendorCardOut`: `id`, `name`, `category`, `city`, `price_from_kzt`, `explanation`, `synthetic`, `matched_on: list[str]` (какие условия совпали, для бэджей на карточке).
+Словари фильтров. Наружу и в БД ходят только латинские `value`, кириллица живёт в `label`: в опциях, карточках и текстах для LLM. Сид переводит подписи из CSV в `value`. Маппинг `value ↔ label` один, `Option(StrEnum)` в `app/src/schemas.py`, поля `RecommendIn` объявлены этими `StrEnum`, поэтому в `openapi.json` и в `api-types.ts` они приходят как enum. `OptionOut` = `{value, label}`, порядок списков фиксированный, как в таблице.
+
+| Поле | `value` → `label` |
+|---|---|
+| `city` | `almaty` Алматы, `astana` Астана, `abroad` Зарубежье |
+| `event_format` | `wedding` свадьба, `toi` той, `corporate` корпоратив, `conference` конференция, `anniversary` юбилей, `birthday` день рождения |
+| `language` | `ru` русский, `kk` казахский, `en` английский |
+| `category` | `host` Ведущий, `ceremony-host` Ведущий церемонии, `photographer` Фотограф, `videographer` Видеограф, `photo-booth` Фото и видеобудки, `florist` Флорист, `decorator` Декоратор, `gifts` Подарки и сувениры, `live-band` Лайв-бэнд, `instrumentalist` Инструменталист, `national-ensemble` Национальный ансамбль, `dance-group` Танцевальный коллектив, `show` Шоу-программа, `banquet-hall` Банкетный зал, `restaurant` Ресторан, `hotel` Отель, `country-venue` Загородная площадка |
+
+Новое значение в CSV без записи в словаре роняет сид с ошибкой, а не тихо пропадает из фильтра.
+
+`VendorOut`: `id`, `name`, `categories: list[OptionOut]`, `city: OptionOut`, `price_from_kzt`, `event_formats: list[OptionOut]`, `languages: list[OptionOut]`, `max_hours`, `description`, `synthetic`. Без `busy_dates` и `embedding`: занятость видна только через подбор на конкретную дату.
+
+`VendorCardOut`: `id`, `name`, `category: OptionOut`, `city: OptionOut`, `price_from_kzt`, `explanation`, `synthetic`, `matched_on: list[str]` (какие условия совпали, для бэджей на карточке).
 
 Детерминизм: ранжирование без LLM, `temperature=0` и `seed` в вызове объяснений. Один вызов LLM на все три карточки с таймаутом 8 с, без ретраев: при таймауте сразу шаблонные объяснения, чтобы ответ пришёл в ориентир 10 с.
 
@@ -53,7 +67,11 @@ vendors            (независимый каталог, читается фи
 
 Паттерн: **форма → результат**.
 
-Экран 1 (`ui/src/routes/index.tsx`): форма из 5 обязательных полей и раскрывающегося блока «Длительность, язык». Одна главная кнопка «Подобрать». Дёргает `GET /catalog/options` при загрузке, `POST /recommend` по кнопке. Ниже результат в одном из состояний: загрузка с текстом «Подбираю…», три исхода из шага 5, ошибка с подсказкой что делать. У синтетического профиля бэдж «синтетический профиль».
+Экран 1 (`ui/src/routes/index.tsx`), сверху вниз: бегущая строка, короткий бренд‑текст, компактный фильтр, под ним результат подбора, внизу список всех подрядчиков из `GET /vendors`.
+
+- Фильтр: 5 обязательных полей и раскрывающийся блок «Длительность, язык». Одна главная кнопка «Подобрать». Значения списков из `GET /catalog/options`.
+- Результат: загрузка с текстом «Подбираю…», три исхода из шага 5, ошибка с подсказкой что делать. У синтетического профиля бэдж «синтетический профиль».
+- Ссылка на подбор: параметры фильтра живут в query string (`validateSearch` в TanStack Router), имена как в `RecommendIn`: `/?city=almaty&event_date=2026-11-14&event_format=wedding&category=photographer&budget_kzt=300000`, в ссылке только латиница и цифры. Открыли ссылку с полным набором обязательных параметров, `POST /recommend` уходит сразу. Бэкенду для этого ничего не нужно: подбор детерминирован, по той же ссылке тот же порядок карточек.
 
 ## 6. Деление работы
 

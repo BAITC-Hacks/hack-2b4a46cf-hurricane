@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
-from src import recommend
+from src import catalog, recommend
 from src.config import settings
 from src.db import engine
 from src.errors import register_error_handlers
@@ -21,6 +21,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 register_error_handlers(app)
+app.include_router(catalog.router)
 app.include_router(recommend.router)
 
 

@@ -17,6 +17,7 @@ from src.models import Vendor
 from src.schemas import (
     CATALOG_DATE_FROM,
     CATALOG_DATE_TO,
+    EventFormat,
     MatchedOn,
     RecommendIn,
     RecommendOut,
@@ -29,12 +30,12 @@ router = APIRouter()
 # Order matters: a vendor is counted under its first failed check, so counts sum to the pool.
 REASON_ORDER = ("busy", "format", "budget", "duration", "language")
 FORMAT_PATTERNS = {
-    "свадьба": r"свад",
-    "той": r"\bто(й|я|е|ю|ев|ях|ям)\b",
-    "корпоратив": r"корпорат",
-    "конференция": r"конферен|форум",
-    "юбилей": r"юбиле",
-    "день рождения": r"рожден",
+    EventFormat.wedding: r"свад",
+    EventFormat.toi: r"\bто(й|я|е|ю|ев|ях|ям)\b",
+    EventFormat.corporate: r"корпорат",
+    EventFormat.conference: r"конферен|форум",
+    EventFormat.anniversary: r"юбиле",
+    EventFormat.birthday: r"рожден",
 }
 DATE_OFFSETS = (-1, 1, -2, 2, -3, 3)
 DB_TIMEOUT_SECONDS = 5
