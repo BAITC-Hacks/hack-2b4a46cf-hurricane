@@ -1,0 +1,8 @@
+{
+  "name": "hackalem-infra",
+  "private": true,
+  "description": "Railway infrastructure as code: .railway/railway.ts",
+  "devDependencies": {
+    "railway": "^3.11.0"
+  }
+}
