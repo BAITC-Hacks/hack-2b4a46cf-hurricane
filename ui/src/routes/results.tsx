@@ -1,7 +1,7 @@
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { LoaderCircle, SearchX } from "lucide-react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { ArrowLeft, LoaderCircle, SearchX } from "lucide-react";
 import { useState } from "react";
 
 import { fetchCatalogOptions, fetchRecommendations, type Schemas } from "@/api";
@@ -90,6 +90,17 @@ function ResultsPage() {
 
   return (
     <div className="grid gap-6 pb-12">
+      <Link
+        to="/"
+        search={filters ? search : {}}
+        className={buttonVariants({
+          variant: "ghost",
+          className: "h-10 w-fit gap-2 px-3 transition active:scale-[0.98] max-md:h-11",
+        })}
+      >
+        <ArrowLeft className="size-4" aria-hidden="true" />
+        <Trans>Назад</Trans>
+      </Link>
       {filters && !isEmpty && (
         <ResultsFilters
           options={options.data}

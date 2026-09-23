@@ -56,11 +56,11 @@ msgstr "within budget"
 msgid "В других городах эта категория есть, подсказки ниже."
 msgstr "This category exists in other cities, see the hints below."
 
-#: src/routes/results.tsx:108
+#: src/routes/results.tsx:119
 msgid "В ссылке не хватает параметров поиска"
 msgstr "The link is missing search parameters"
 
-#: src/routes/results.tsx:161
+#: src/routes/results.tsx:172
 msgid "В этом городе нет подрядчиков выбранной категории"
 msgstr "There are no vendors of this category in this city"
 
@@ -68,7 +68,7 @@ msgstr "There are no vendors of this category in this city"
 msgid "Все варианты дороже {budget} ₸. Подсказка по бюджету ниже."
 msgstr "Every option costs more than {budget} ₸. See the budget hint below."
 
-#: src/routes/results.tsx:111
+#: src/routes/results.tsx:122
 msgid "Выберите фильтры на главной странице и создайте новую ссылку."
 msgstr "Choose filters on the home page and create a new link."
 
@@ -153,6 +153,10 @@ msgstr "Any language"
 msgid "На {date} в этой категории все заняты. Соседние даты ниже."
 msgstr "Everyone in this category is busy on {date}. Nearby dates are below."
 
+#: src/routes/results.tsx:102
+msgid "Назад"
+msgstr "Back"
+
 #. placeholder {0}: getVendorCount(suggestion.count)
 #: src/components/SearchHints.tsx:63
 msgid "найдётся {0}"
@@ -192,7 +196,7 @@ msgstr "Couldn't load vendors. Try again."
 msgid "Не удалось загрузить фильтры. Попробуйте ещё раз."
 msgstr "Couldn't load filters. Try again."
 
-#: src/routes/results.tsx:129
+#: src/routes/results.tsx:140
 msgid "Не удалось подобрать подрядчиков. Проверьте фильтры и попробуйте ещё раз."
 msgstr "Couldn't match vendors. Check the filters and try again."
 
@@ -223,17 +227,17 @@ msgstr "from {0} ₸"
 msgid "Оценочная цена — уточните у подрядчика"
 msgstr "Estimated price — confirm with the vendor"
 
-#: src/routes/results.tsx:162
+#: src/routes/results.tsx:173
 msgid "По этим условиям подрядчиков не нашлось"
 msgstr "No vendors match these conditions"
 
 #: src/routes/index.tsx:79
 #: src/routes/index.tsx:109
-#: src/routes/results.tsx:139
+#: src/routes/results.tsx:150
 msgid "Повторить"
 msgstr "Retry"
 
-#: src/routes/results.tsx:118
+#: src/routes/results.tsx:129
 msgid "Подбираю подрядчиков…"
 msgstr "Matching vendors…"
 
@@ -260,7 +264,7 @@ msgstr "fits by description"
 msgid "Подходят {0} из {1} профилей в {2}."
 msgstr "{0} of {1} profiles in {2} match."
 
-#: src/routes/results.tsx:147
+#: src/routes/results.tsx:158
 msgid "Подходящие подрядчики"
 msgstr "Matching vendors"
 
