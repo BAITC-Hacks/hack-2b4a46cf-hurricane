@@ -3,6 +3,7 @@ import { RotateCcw, Search, SlidersHorizontal } from "lucide-react";
 import { useState, type FormEvent } from "react";
 
 import type { Schemas } from "@/api";
+import { LanguageCombobox } from "@/components/LanguageCombobox";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -13,6 +14,7 @@ import {
   ComboboxItem,
   ComboboxList,
 } from "@/components/ui/combobox";
+import { Slider } from "@/components/ui/slider";
 
 export type SearchFilters = Schemas["RecommendIn"];
 type CatalogOptions = Schemas["CatalogOptionsOut"];
@@ -56,22 +58,18 @@ function FilterSelect({
   value,
   options,
   onChange,
-  anyLabel,
 }: {
   label: string;
   value: string;
   options: Option[];
   onChange: (value: string) => void;
-  anyLabel?: string;
 }) {
-  const items = anyLabel ? [{ value: "any", label: anyLabel }, ...options] : options;
-
   return (
     <label className="grid min-w-0 content-start gap-2 text-sm font-medium">
       {label}
       <Combobox
-        items={items}
-        value={items.find((option) => option.value === value) ?? null}
+        items={options}
+        value={options.find((option) => option.value === value) ?? null}
         onValueChange={(selected) => selected && onChange(selected.value)}
         itemToStringLabel={(option) => option.label}
         itemToStringValue={(option) => option.value}
@@ -193,35 +191,33 @@ export function SearchForm({
               <span className="ml-auto text-xs text-muted-foreground group-open:rotate-180">⌄</span>
             </summary>
             <div className="grid grid-cols-2 gap-3 pb-3 max-md:grid-cols-1">
-              <label className="grid min-w-0 gap-2 text-sm font-medium">
-                <Trans>Длительность, ч</Trans>
-                <input
-                  type="number"
-                  min="1"
-                  max="24"
-                  inputMode="numeric"
-                  placeholder={t`Не важно`}
-                  value={filters.duration_hours ?? ""}
-                  onChange={(event) =>
-                    setFilters({
-                      ...filters,
-                      duration_hours: event.target.value ? Number(event.target.value) : null,
-                    })
-                  }
-                  className="h-10 min-w-0 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 max-md:h-11"
-                />
-              </label>
-              <FilterSelect
+              <div className="grid min-w-0 content-start gap-2 text-sm font-medium">
+                <span id="duration-label" className="flex justify-between gap-2">
+                  <Trans>Длительность</Trans>
+                  <span className="text-muted-foreground">
+                    {filters.duration_hours ? t`до ${filters.duration_hours} ч` : t`Не важно`}
+                  </span>
+                </span>
+                <div className="flex h-10 items-center px-1 max-md:h-11">
+                  <Slider
+                    aria-labelledby="duration-label"
+                    min={0}
+                    max={24}
+                    step={1}
+                    value={[filters.duration_hours ?? 0]}
+                    onValueChange={(hours) => {
+                      const duration = Array.isArray(hours) ? hours[0] : hours;
+                      setFilters({ ...filters, duration_hours: duration || null });
+                    }}
+                  />
+                </div>
+              </div>
+              <LanguageCombobox
                 label={t`Язык работы`}
-                value={filters.languages?.[0] ?? "any"}
+                placeholder={t`Не важно`}
                 options={options.languages}
-                anyLabel={t`Не важно`}
-                onChange={(language) =>
-                  setFilters({
-                    ...filters,
-                    languages: language === "any" ? [] : [language as Schemas["Language"]],
-                  })
-                }
+                value={filters.languages ?? []}
+                onChange={(languages) => setFilters({ ...filters, languages })}
               />
             </div>
           </details>
