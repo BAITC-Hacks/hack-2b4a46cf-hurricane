@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { activateLocale, locales, type Locale } from "@/i18n";
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
@@ -27,6 +28,7 @@ function RootLayout() {
           </Link>
         </p>
         <div className="flex items-center gap-3">
+          <ThemeToggle />
           <Select value={i18n.locale} onValueChange={(value) => activateLocale(value as Locale)}>
             <SelectTrigger className="min-h-10 w-16 px-2 uppercase max-md:min-h-11">
               <SelectValue />

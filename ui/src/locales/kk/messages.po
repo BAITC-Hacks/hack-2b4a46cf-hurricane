@@ -17,7 +17,7 @@ msgstr ""
 msgid "{count, plural, one {# подрядчик} few {# подрядчика} many {# подрядчиков} other {# подрядчика}}"
 msgstr "{count, plural, one {# мердігер} other {# мердігер}}"
 
-#: src/routes/__root.tsx:26
+#: src/routes/__root.tsx:27
 msgid "EventMatch"
 msgstr "EventMatch"
 
@@ -38,7 +38,7 @@ msgstr "форматты алады"
 msgid "Бюджет {0} ₸"
 msgstr "Бюджет {0} ₸"
 
-#: src/components/SearchForm.tsx:167
+#: src/components/SearchForm.tsx:174
 msgid "Бюджет, ₸"
 msgstr "Бюджет, ₸"
 
@@ -76,15 +76,15 @@ msgstr "Басты беттен сүзгілерді таңдап, жаңа сі
 msgid "Выбранные фильтры"
 msgstr "Таңдалған сүзгілер"
 
-#: src/components/SearchForm.tsx:129
+#: src/components/SearchForm.tsx:136
 msgid "Город"
 msgstr "Қала"
 
-#: src/components/SearchForm.tsx:135
+#: src/components/SearchForm.tsx:142
 msgid "Дата"
 msgstr "Күні"
 
-#: src/components/SearchForm.tsx:207
+#: src/components/SearchForm.tsx:214
 msgid "Длительность"
 msgstr "Ұзақтығы"
 
@@ -93,14 +93,14 @@ msgid "длительность подходит"
 msgstr "ұзақтығы сәйкес"
 
 #. placeholder {0}: compactKzt.format(amount)
-#: src/components/SearchForm.tsx:192
+#: src/components/SearchForm.tsx:199
 msgid "до {0} ₸"
 msgstr "{0} ₸ дейін"
 
 #. placeholder {0}: filters.duration_hours
 #. placeholder {0}: vendor.max_hours
 #: src/components/ResultsFilters.tsx:35
-#: src/components/SearchForm.tsx:209
+#: src/components/SearchForm.tsx:216
 #: src/components/VendorCard.tsx:103
 msgid "до {0} ч"
 msgstr "{0} сағ дейін"
@@ -110,7 +110,7 @@ msgstr "{0} сағ дейін"
 msgid "До {0} ч"
 msgstr "{0} сағатқа дейін"
 
-#: src/components/SearchForm.tsx:201
+#: src/components/SearchForm.tsx:208
 msgid "Дополнительные условия"
 msgstr "Қосымша шарттар"
 
@@ -129,7 +129,7 @@ msgstr "{date} күні бос емес: {0}. Жақын күндер төмен
 msgid "Изменить фильтры"
 msgstr "Сүзгілерді өзгерту"
 
-#: src/components/SearchForm.tsx:158
+#: src/components/SearchForm.tsx:165
 msgid "Категория"
 msgstr "Санат"
 
@@ -167,8 +167,8 @@ msgstr "{0} табылады"
 msgid "Не берут формат «{format}»: {0}. Это условие не смягчить, оно про сам формат события."
 msgstr "«{format}» форматын алмайды: {0}. Бұл шартты жеңілдету мүмкін емес, ол іс-шараның өзіне қатысты."
 
-#: src/components/SearchForm.tsx:209
-#: src/components/SearchForm.tsx:228
+#: src/components/SearchForm.tsx:216
+#: src/components/SearchForm.tsx:235
 msgid "Не важно"
 msgstr "Маңызды емес"
 
@@ -188,11 +188,11 @@ msgstr "сағатты шектемеу"
 msgid "Не работают {0} ч подряд: {1}. Короче программа, шире выбор."
 msgstr "{0} сағат қатарынан жұмыс істемейді: {1}. Бағдарлама қысқа болса, таңдау кеңірек."
 
-#: src/routes/index.tsx:102
+#: src/routes/index.tsx:108
 msgid "Не удалось загрузить подрядчиков. Попробуйте ещё раз."
 msgstr "Мердігерлерді жүктеу мүмкін болмады. Қайталап көріңіз."
 
-#: src/routes/index.tsx:72
+#: src/routes/index.tsx:77
 msgid "Не удалось загрузить фильтры. Попробуйте ещё раз."
 msgstr "Сүзгілерді жүктеу мүмкін болмады. Қайталап көріңіз."
 
@@ -226,8 +226,8 @@ msgstr "Болжамды баға — мердігерден нақтылаңы�
 msgid "По этим условиям подрядчиков не нашлось"
 msgstr "Бұл шарттар бойынша мердігерлер табылмады"
 
-#: src/routes/index.tsx:79
-#: src/routes/index.tsx:109
+#: src/routes/index.tsx:84
+#: src/routes/index.tsx:115
 #: src/routes/results.tsx:154
 msgid "Повторить"
 msgstr "Қайталау"
@@ -236,15 +236,15 @@ msgstr "Қайталау"
 msgid "Подбираю подрядчиков…"
 msgstr "Мердігерлерді іріктеп жатырмын…"
 
-#: src/components/SearchForm.tsx:238
+#: src/components/SearchForm.tsx:245
 msgid "Подобрать"
 msgstr "Іріктеу"
 
-#: src/routes/index.tsx:91
+#: src/routes/index.tsx:97
 msgid "Подрядчики"
 msgstr "Мердігерлер"
 
-#: src/routes/index.tsx:116
+#: src/routes/index.tsx:122
 msgid "Подрядчиков пока нет"
 msgstr "Әзірге мердігерлер жоқ"
 
@@ -264,11 +264,11 @@ msgid "Подходящие подрядчики"
 msgstr "Сәйкес мердігерлер"
 
 #. placeholder {0}: vendors.data.length
-#: src/routes/index.tsx:135
+#: src/routes/index.tsx:141
 msgid "Показать всех подрядчиков ({0})"
 msgstr "Барлық мердігерлерді көрсету ({0})"
 
-#: src/routes/index.tsx:119
+#: src/routes/index.tsx:125
 msgid "Попробуйте вернуться позже."
 msgstr "Кейінірек қайта келіп көріңіз."
 
@@ -288,9 +288,13 @@ msgstr "Каталогтағы профиль"
 msgid "Самый дорогой в бюджете"
 msgstr "Бюджеттегі ең қымбаты"
 
-#: src/components/SearchForm.tsx:248
+#: src/components/SearchForm.tsx:255
 msgid "Сбросить фильтры"
 msgstr "Сүзгілерді тазалау"
+
+#: src/components/ThemeToggle.tsx:26
+msgid "Светлая тема"
+msgstr "Жарық тема"
 
 #: src/components/VendorCard.tsx:50
 msgid "свободен на дату"
@@ -316,11 +320,15 @@ msgstr "Сүзгілерді жасыру"
 msgid "Такой категории нет ни в одном городе каталога."
 msgstr "Бұл категория каталогтың бірде-бір қаласында жоқ."
 
+#: src/components/ThemeToggle.tsx:26
+msgid "Тёмная тема"
+msgstr "Қараңғы тема"
+
 #: src/components/SearchHints.tsx:102
 msgid "убрать требование к языку"
 msgstr "тіл талабын алып тастау"
 
-#: src/components/SearchForm.tsx:147
+#: src/components/SearchForm.tsx:154
 msgid "Формат"
 msgstr "Формат"
 
@@ -332,6 +340,6 @@ msgstr "Мұнда бұл категориядан «{format}» форматын
 msgid "Что совпало с заказом"
 msgstr "Тапсырысқа не сәйкес келді"
 
-#: src/components/SearchForm.tsx:227
+#: src/components/SearchForm.tsx:234
 msgid "Язык работы"
 msgstr "Жұмыс тілі"

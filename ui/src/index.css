@@ -56,7 +56,7 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* Light theme only. Values come from DESIGN.md (Vercel-inspired). Do not add a .dark block. */
+/* Values come from DESIGN.md (Vercel-inspired). Dark theme is the same palette inverted. */
 :root {
   --background: #fafafa;
   --foreground: #171717;
@@ -97,6 +97,45 @@
   --sidebar-ring: #0070f3;
 }
 
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --card: #111111;
+  --card-foreground: #ededed;
+  --popover: #111111;
+  --popover-foreground: #ededed;
+  --primary: #ededed;
+  --primary-foreground: #0a0a0a;
+  --secondary: #1f1f1f;
+  --secondary-foreground: #ededed;
+  --muted: #1f1f1f;
+  --muted-foreground: #a1a1a1;
+  --accent: #1a1a1a;
+  --accent-foreground: #ededed;
+  --destructive: #ff6166;
+  --success: #46a758;
+  --success-foreground: #0a0a0a;
+  --warning: #f5a623;
+  --warning-foreground: #0a0a0a;
+  --link: #52a8ff;
+  --border: #2e2e2e;
+  --input: #2e2e2e;
+  --ring: #52a8ff;
+  --chart-1: #52a8ff;
+  --chart-2: #bf7af0;
+  --chart-3: #ff6fa8;
+  --chart-4: #46a758;
+  --chart-5: #f5a623;
+  --sidebar: #111111;
+  --sidebar-foreground: #ededed;
+  --sidebar-primary: #ededed;
+  --sidebar-primary-foreground: #0a0a0a;
+  --sidebar-accent: #1a1a1a;
+  --sidebar-accent-foreground: #ededed;
+  --sidebar-border: #2e2e2e;
+  --sidebar-ring: #52a8ff;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -106,6 +145,10 @@
   }
   html {
     @apply font-sans antialiased;
+    color-scheme: light;
+  }
+  html.dark {
+    color-scheme: dark;
   }
   @media (prefers-reduced-motion: reduce) {
     *,

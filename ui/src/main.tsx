@@ -7,7 +7,10 @@ import { createRoot } from "react-dom/client";
 
 import { activateLocale, getInitialLocale } from "./i18n";
 import { routeTree } from "./routeTree.gen";
+import { applyStoredTheme } from "./theme";
 import "./index.css";
+
+applyStoredTheme();
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30_000, refetchOnWindowFocus: false } },
