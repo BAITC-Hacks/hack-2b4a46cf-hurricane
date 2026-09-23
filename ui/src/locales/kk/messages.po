@@ -77,11 +77,11 @@ msgstr "Қосымша шарттар"
 msgid "дороже бюджета"
 msgstr "бюджеттен қымбат"
 
-#: src/routes/index.tsx:73
+#: src/routes/index.tsx:65
 msgid "Загружаю подрядчиков…"
 msgstr "Мердігерлер жүктелуде…"
 
-#: src/routes/index.tsx:48
+#: src/routes/index.tsx:40
 msgid "Загружаю фильтры…"
 msgstr "Сүзгілер жүктелуде…"
 
@@ -127,11 +127,11 @@ msgstr "бұл форматта жұмыс істемейді"
 msgid "не работают на выбранном языке"
 msgstr "таңдалған тілде жұмыс істемейді"
 
-#: src/routes/index.tsx:78
+#: src/routes/index.tsx:70
 msgid "Не удалось загрузить подрядчиков. Попробуйте ещё раз."
 msgstr "Мердігерлерді жүктеу мүмкін болмады. Қайталап көріңіз."
 
-#: src/routes/index.tsx:53
+#: src/routes/index.tsx:45
 msgid "Не удалось загрузить фильтры. Попробуйте ещё раз."
 msgstr "Сүзгілерді жүктеу мүмкін болмады. Қайталап көріңіз."
 
@@ -156,8 +156,8 @@ msgstr "Іс-шара параметрлері"
 msgid "По этим условиям подрядчиков не нашлось"
 msgstr "Бұл шарттар бойынша мердігерлер табылмады"
 
-#: src/routes/index.tsx:60
-#: src/routes/index.tsx:85
+#: src/routes/index.tsx:52
+#: src/routes/index.tsx:77
 #: src/routes/results.tsx:129
 msgid "Повторить"
 msgstr "Қайталау"
@@ -174,15 +174,11 @@ msgstr "Мердігерлерді іріктеу"
 msgid "Подобрать"
 msgstr "Іріктеу"
 
-#: src/routes/index.tsx:68
+#: src/routes/index.tsx:60
 msgid "Подрядчики"
 msgstr "Мердігерлер"
 
-#: src/routes/index.tsx:39
-msgid "Подрядчики под ваше событие"
-msgstr "Іс-шараңызға арналған мердігерлер"
-
-#: src/routes/index.tsx:92
+#: src/routes/index.tsx:84
 msgid "Подрядчиков пока нет"
 msgstr "Әзірге мердігерлер жоқ"
 
@@ -191,11 +187,11 @@ msgid "Подходящие подрядчики"
 msgstr "Сәйкес мердігерлер"
 
 #. placeholder {0}: vendors.data.length
-#: src/routes/index.tsx:111
+#: src/routes/index.tsx:103
 msgid "Показать всех подрядчиков ({0})"
 msgstr "Барлық мердігерлерді көрсету ({0})"
 
-#: src/routes/index.tsx:95
+#: src/routes/index.tsx:87
 msgid "Попробуйте вернуться позже."
 msgstr "Кейінірек қайта келіп көріңіз."
 
@@ -218,10 +214,6 @@ msgstr "Сүзгілерді тазалау"
 #: src/components/VendorCard.tsx:30
 msgid "Синтетический профиль"
 msgstr "Синтетикалық профиль"
-
-#: src/routes/index.tsx:42
-msgid "Укажите город, дату, формат и бюджет, чтобы найти подходящих подрядчиков."
-msgstr "Сәйкес мердігерлерді табу үшін қаланы, күнді, форматты және бюджетті көрсетіңіз."
 
 #: src/components/SearchForm.tsx:142
 msgid "Формат"

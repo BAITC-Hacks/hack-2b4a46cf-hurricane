@@ -77,11 +77,11 @@ msgstr "More conditions"
 msgid "дороже бюджета"
 msgstr "over budget"
 
-#: src/routes/index.tsx:73
+#: src/routes/index.tsx:65
 msgid "Загружаю подрядчиков…"
 msgstr "Loading vendors…"
 
-#: src/routes/index.tsx:48
+#: src/routes/index.tsx:40
 msgid "Загружаю фильтры…"
 msgstr "Loading filters…"
 
@@ -127,11 +127,11 @@ msgstr "don't work this format"
 msgid "не работают на выбранном языке"
 msgstr "don't work in the selected language"
 
-#: src/routes/index.tsx:78
+#: src/routes/index.tsx:70
 msgid "Не удалось загрузить подрядчиков. Попробуйте ещё раз."
 msgstr "Couldn't load vendors. Try again."
 
-#: src/routes/index.tsx:53
+#: src/routes/index.tsx:45
 msgid "Не удалось загрузить фильтры. Попробуйте ещё раз."
 msgstr "Couldn't load filters. Try again."
 
@@ -156,8 +156,8 @@ msgstr "Event details"
 msgid "По этим условиям подрядчиков не нашлось"
 msgstr "No vendors match these conditions"
 
-#: src/routes/index.tsx:60
-#: src/routes/index.tsx:85
+#: src/routes/index.tsx:52
+#: src/routes/index.tsx:77
 #: src/routes/results.tsx:129
 msgid "Повторить"
 msgstr "Retry"
@@ -174,15 +174,11 @@ msgstr "Vendor matching"
 msgid "Подобрать"
 msgstr "Match"
 
-#: src/routes/index.tsx:68
+#: src/routes/index.tsx:60
 msgid "Подрядчики"
 msgstr "Vendors"
 
-#: src/routes/index.tsx:39
-msgid "Подрядчики под ваше событие"
-msgstr "Vendors for your event"
-
-#: src/routes/index.tsx:92
+#: src/routes/index.tsx:84
 msgid "Подрядчиков пока нет"
 msgstr "No vendors yet"
 
@@ -191,11 +187,11 @@ msgid "Подходящие подрядчики"
 msgstr "Matching vendors"
 
 #. placeholder {0}: vendors.data.length
-#: src/routes/index.tsx:111
+#: src/routes/index.tsx:103
 msgid "Показать всех подрядчиков ({0})"
 msgstr "Show all vendors ({0})"
 
-#: src/routes/index.tsx:95
+#: src/routes/index.tsx:87
 msgid "Попробуйте вернуться позже."
 msgstr "Try coming back later."
 
@@ -218,10 +214,6 @@ msgstr "Reset filters"
 #: src/components/VendorCard.tsx:30
 msgid "Синтетический профиль"
 msgstr "Synthetic profile"
-
-#: src/routes/index.tsx:42
-msgid "Укажите город, дату, формат и бюджет, чтобы найти подходящих подрядчиков."
-msgstr "Enter the city, date, format and budget to find matching vendors."
 
 #: src/components/SearchForm.tsx:142
 msgid "Формат"

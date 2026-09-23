@@ -34,14 +34,6 @@ function HomePage() {
 
   return (
     <div className="grid gap-8 pb-12">
-      <section className="grid gap-2">
-        <h1 className="font-heading text-2xl font-semibold leading-8 max-md:text-xl max-md:leading-7">
-          <Trans>Подрядчики под ваше событие</Trans>
-        </h1>
-        <p className="text-sm leading-5 text-muted-foreground">
-          <Trans>Укажите город, дату, формат и бюджет, чтобы найти подходящих подрядчиков.</Trans>
-        </p>
-      </section>
       {options.isPending ? (
         <div className="flex min-h-40 items-center gap-2 rounded-lg border border-border bg-card p-6 text-sm text-muted-foreground">
           <LoaderCircle className="size-5 animate-spin" aria-hidden="true" />

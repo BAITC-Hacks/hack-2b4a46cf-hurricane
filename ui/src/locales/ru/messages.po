@@ -77,11 +77,11 @@ msgstr "Дополнительные условия"
 msgid "дороже бюджета"
 msgstr "дороже бюджета"
 
-#: src/routes/index.tsx:73
+#: src/routes/index.tsx:65
 msgid "Загружаю подрядчиков…"
 msgstr "Загружаю подрядчиков…"
 
-#: src/routes/index.tsx:48
+#: src/routes/index.tsx:40
 msgid "Загружаю фильтры…"
 msgstr "Загружаю фильтры…"
 
@@ -127,11 +127,11 @@ msgstr "не работают в этом формате"
 msgid "не работают на выбранном языке"
 msgstr "не работают на выбранном языке"
 
-#: src/routes/index.tsx:78
+#: src/routes/index.tsx:70
 msgid "Не удалось загрузить подрядчиков. Попробуйте ещё раз."
 msgstr "Не удалось загрузить подрядчиков. Попробуйте ещё раз."
 
-#: src/routes/index.tsx:53
+#: src/routes/index.tsx:45
 msgid "Не удалось загрузить фильтры. Попробуйте ещё раз."
 msgstr "Не удалось загрузить фильтры. Попробуйте ещё раз."
 
@@ -156,8 +156,8 @@ msgstr "Параметры события"
 msgid "По этим условиям подрядчиков не нашлось"
 msgstr "По этим условиям подрядчиков не нашлось"
 
-#: src/routes/index.tsx:60
-#: src/routes/index.tsx:85
+#: src/routes/index.tsx:52
+#: src/routes/index.tsx:77
 #: src/routes/results.tsx:129
 msgid "Повторить"
 msgstr "Повторить"
@@ -174,15 +174,11 @@ msgstr "Подбор подрядчиков"
 msgid "Подобрать"
 msgstr "Подобрать"
 
-#: src/routes/index.tsx:68
+#: src/routes/index.tsx:60
 msgid "Подрядчики"
 msgstr "Подрядчики"
 
-#: src/routes/index.tsx:39
-msgid "Подрядчики под ваше событие"
-msgstr "Подрядчики под ваше событие"
-
-#: src/routes/index.tsx:92
+#: src/routes/index.tsx:84
 msgid "Подрядчиков пока нет"
 msgstr "Подрядчиков пока нет"
 
@@ -191,11 +187,11 @@ msgid "Подходящие подрядчики"
 msgstr "Подходящие подрядчики"
 
 #. placeholder {0}: vendors.data.length
-#: src/routes/index.tsx:111
+#: src/routes/index.tsx:103
 msgid "Показать всех подрядчиков ({0})"
 msgstr "Показать всех подрядчиков ({0})"
 
-#: src/routes/index.tsx:95
+#: src/routes/index.tsx:87
 msgid "Попробуйте вернуться позже."
 msgstr "Попробуйте вернуться позже."
 
@@ -218,10 +214,6 @@ msgstr "Сбросить фильтры"
 #: src/components/VendorCard.tsx:30
 msgid "Синтетический профиль"
 msgstr "Синтетический профиль"
-
-#: src/routes/index.tsx:42
-msgid "Укажите город, дату, формат и бюджет, чтобы найти подходящих подрядчиков."
-msgstr "Укажите город, дату, формат и бюджет, чтобы найти подходящих подрядчиков."
 
 #: src/components/SearchForm.tsx:142
 msgid "Формат"
