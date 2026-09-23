@@ -133,4 +133,4 @@ Railway, проект `hurricane`, окружение `production`, сервис
 ## Команда
 
 - **Шорин Алихан**, капитан, бэкенд: [GitHub](https://github.com/5kif4a), [LinkedIn](https://www.linkedin.com/in/alikhan-shorin/)
-- **Альпеисов Диас**, фронтенд: [GitHub](https://github.com/caaahaaaaa)
+- **Альпеисов Диас**, фронтенд: [GitHub](https://github.com/caaahaaaaa), [LinkedIn](https://www.linkedin.com/in/dias-alpeissov)
