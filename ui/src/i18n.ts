@@ -9,11 +9,11 @@ export async function activateLocale(locale: Locale): Promise<void> {
   i18n.activate(locale);
 }
 
-/** "2026-10-08" -> "08 окт 2026": the ISO date from the URL, readable in the active locale. */
+/** "2026-10-08" -> "8 октября 2026": full month name, since short names fall back to "M10" in some browsers. */
 export function formatEventDate(isoDate: string, locale: string): string {
   const parts = new Intl.DateTimeFormat(locale, {
-    day: "2-digit",
-    month: "short",
+    day: "numeric",
+    month: "long",
     year: "numeric",
     timeZone: "UTC",
   }).formatToParts(new Date(isoDate));
