@@ -6,16 +6,38 @@ import type { Schemas } from "@/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from "@/components/ui/combobox";
 
 export type SearchFilters = Schemas["RecommendIn"];
 type CatalogOptions = Schemas["CatalogOptionsOut"];
 type Option = Schemas["OptionOut"];
+
+// Prices differ 60x between gifts and banquet halls, so presets follow each category's catalog range.
+const budgetPresets: Partial<Record<SearchFilters["category"], number[]>> = {
+  host: [600_000, 1_000_000, 1_500_000, 2_000_000],
+  "ceremony-host": [200_000, 250_000],
+  photographer: [200_000, 300_000, 450_000, 600_000],
+  videographer: [300_000, 500_000, 800_000],
+  "photo-booth": [300_000, 400_000, 450_000],
+  florist: [200_000, 250_000, 300_000],
+  decorator: [1_800_000, 2_000_000, 2_200_000],
+  gifts: [100_000, 150_000],
+  "live-band": [800_000, 1_000_000, 1_500_000],
+  instrumentalist: [350_000, 450_000, 500_000],
+  "national-ensemble": [400_000, 500_000],
+  "dance-group": [400_000, 500_000],
+  show: [400_000, 500_000],
+  "banquet-hall": [2_000_000, 3_000_000, 4_500_000, 6_000_000],
+  restaurant: [2_000_000, 3_000_000, 4_500_000, 6_000_000],
+  hotel: [3_000_000, 4_500_000, 6_000_000],
+  "country-venue": [2_500_000, 3_000_000, 4_000_000],
+};
 
 function getInitialFilters(options: CatalogOptions): SearchFilters {
   return {
@@ -42,28 +64,32 @@ function FilterSelect({
   onChange: (value: string) => void;
   anyLabel?: string;
 }) {
+  const items = anyLabel ? [{ value: "any", label: anyLabel }, ...options] : options;
+
   return (
     <label className="grid min-w-0 gap-2 text-sm font-medium">
       {label}
-      <Select value={value} onValueChange={(selected) => selected && onChange(selected)}>
-        <SelectTrigger className="min-h-10 w-full bg-background px-3 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 max-md:min-h-11">
-          <SelectValue>
-            {value === "any" ? anyLabel : options.find((option) => option.value === value)?.label}
-          </SelectValue>
-        </SelectTrigger>
-        <SelectContent>
-          {anyLabel && (
-            <SelectItem value="any" className="min-h-11 px-3">
-              {anyLabel}
-            </SelectItem>
-          )}
-          {options.map((option) => (
-            <SelectItem key={option.value} value={option.value} className="min-h-11 px-3">
-              {option.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <Combobox
+        items={items}
+        value={items.find((option) => option.value === value) ?? null}
+        onValueChange={(selected) => selected && onChange(selected.value)}
+        itemToStringLabel={(option) => option.label}
+        itemToStringValue={(option) => option.value}
+      >
+        <ComboboxInput className="h-10 w-full bg-background text-sm max-md:h-11" />
+        <ComboboxContent>
+          <ComboboxEmpty>
+            <Trans>Ничего не найдено</Trans>
+          </ComboboxEmpty>
+          <ComboboxList>
+            {(option: Option) => (
+              <ComboboxItem key={option.value} value={option} className="min-h-11 px-3">
+                {option.label}
+              </ComboboxItem>
+            )}
+          </ComboboxList>
+        </ComboboxContent>
+      </Combobox>
     </label>
   );
 }
@@ -75,7 +101,8 @@ export function SearchForm({
   options: CatalogOptions;
   onSearch: (filters: SearchFilters) => void;
 }) {
-  const { t } = useLingui();
+  const { t, i18n } = useLingui();
+  const compactKzt = new Intl.NumberFormat(i18n.locale, { notation: "compact" });
   const [filters, setFilters] = useState<SearchFilters>(() => getInitialFilters(options));
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -130,22 +157,39 @@ export function SearchForm({
                 setFilters({ ...filters, category: category as SearchFilters["category"] })
               }
             />
-            <label className="grid min-w-0 gap-2 text-sm font-medium">
-              <Trans>Бюджет, ₸</Trans>
-              <input
-                type="number"
-                required
-                min="1"
-                max="50000000"
-                step="1"
-                inputMode="numeric"
-                value={filters.budget_kzt}
-                onChange={(event) =>
-                  setFilters({ ...filters, budget_kzt: Number(event.target.value) })
-                }
-                className="h-10 min-w-0 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 max-md:h-11"
-              />
-            </label>
+            <div className="grid content-start gap-2">
+              <label className="grid min-w-0 gap-2 text-sm font-medium">
+                <Trans>Бюджет, ₸</Trans>
+                <input
+                  type="number"
+                  required
+                  min="1"
+                  max="50000000"
+                  step="1"
+                  inputMode="numeric"
+                  value={filters.budget_kzt}
+                  onChange={(event) =>
+                    setFilters({ ...filters, budget_kzt: Number(event.target.value) })
+                  }
+                  className="h-10 min-w-0 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 max-md:h-11"
+                />
+              </label>
+              <div className="flex flex-wrap gap-1.5">
+                {(budgetPresets[filters.category] ?? []).map((amount) => (
+                  <Button
+                    key={amount}
+                    type="button"
+                    variant={filters.budget_kzt === amount ? "secondary" : "outline"}
+                    aria-pressed={filters.budget_kzt === amount}
+                    size="sm"
+                    onClick={() => setFilters({ ...filters, budget_kzt: amount })}
+                    className="rounded-full max-md:h-9"
+                  >
+                    {t`до ${compactKzt.format(amount)} ₸`}
+                  </Button>
+                ))}
+              </div>
+            </div>
           </div>
           <details className="group border-t border-border pt-2">
             <summary className="flex min-h-10 cursor-pointer list-none items-center gap-2 text-sm font-medium max-md:min-h-11 [&::-webkit-details-marker]:hidden">

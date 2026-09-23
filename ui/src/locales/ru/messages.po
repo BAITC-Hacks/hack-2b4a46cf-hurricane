@@ -21,7 +21,7 @@ msgstr "EventMatch"
 msgid "Альтернатива"
 msgstr "Альтернатива"
 
-#: src/components/SearchForm.tsx:132
+#: src/components/SearchForm.tsx:162
 msgid "Бюджет, ₸"
 msgstr "Бюджет, ₸"
 
@@ -42,7 +42,7 @@ msgstr "В этом городе нет подрядчиков выбранно�
 msgid "Выберите фильтры на главной странице и создайте новую ссылку."
 msgstr "Выберите фильтры на главной странице и создайте новую ссылку."
 
-#: src/components/SearchForm.tsx:95
+#: src/components/SearchForm.tsx:124
 msgid "Город"
 msgstr "Город"
 
@@ -51,7 +51,7 @@ msgstr "Город"
 msgid "Город: {0}"
 msgstr "Город: {0}"
 
-#: src/components/SearchForm.tsx:101
+#: src/components/SearchForm.tsx:130
 msgid "Дата"
 msgstr "Дата"
 
@@ -60,11 +60,16 @@ msgstr "Дата"
 msgid "Дата: {0}"
 msgstr "Дата: {0}"
 
-#: src/components/SearchForm.tsx:156
+#: src/components/SearchForm.tsx:202
 msgid "Длительность, ч"
 msgstr "Длительность, ч"
 
-#: src/components/SearchForm.tsx:151
+#. placeholder {0}: compactKzt.format(amount)
+#: src/components/SearchForm.tsx:188
+msgid "до {0} ₸"
+msgstr "до {0} ₸"
+
+#: src/components/SearchForm.tsx:197
 msgid "Дополнительные условия"
 msgstr "Дополнительные условия"
 
@@ -88,7 +93,7 @@ msgstr "заняты на дату"
 msgid "Изменить фильтры"
 msgstr "Изменить фильтры"
 
-#: src/components/SearchForm.tsx:124
+#: src/components/SearchForm.tsx:153
 msgid "Категория"
 msgstr "Категория"
 
@@ -100,8 +105,8 @@ msgstr "Лучшая цена"
 msgid "Лучшее совпадение"
 msgstr "Лучшее совпадение"
 
-#: src/components/SearchForm.tsx:162
-#: src/components/SearchForm.tsx:177
+#: src/components/SearchForm.tsx:208
+#: src/components/SearchForm.tsx:223
 msgid "Не важно"
 msgstr "Не важно"
 
@@ -134,12 +139,16 @@ msgstr "Не удалось загрузить фильтры. Попробуй�
 msgid "Не удалось подобрать подрядчиков. Проверьте фильтры и попробуйте ещё раз."
 msgstr "Не удалось подобрать подрядчиков. Проверьте фильтры и попробуйте ещё раз."
 
+#: src/components/SearchForm.tsx:82
+msgid "Ничего не найдено"
+msgstr "Ничего не найдено"
+
 #. placeholder {0}: new Intl.NumberFormat("ru-RU").format(vendor.price_from_kzt)
 #: src/components/VendorCard.tsx:41
 msgid "От {0} ₸"
 msgstr "От {0} ₸"
 
-#: src/components/SearchForm.tsx:88
+#: src/components/SearchForm.tsx:117
 msgid "Параметры события"
 msgstr "Параметры события"
 
@@ -161,7 +170,7 @@ msgstr "Подбираю подрядчиков…"
 msgid "Подбор подрядчиков"
 msgstr "Подбор подрядчиков"
 
-#: src/components/SearchForm.tsx:190
+#: src/components/SearchForm.tsx:236
 msgid "Подобрать"
 msgstr "Подобрать"
 
@@ -202,7 +211,7 @@ msgstr "Попробуйте изменить дату, бюджет или го
 msgid "Премиум"
 msgstr "Премиум"
 
-#: src/components/SearchForm.tsx:200
+#: src/components/SearchForm.tsx:246
 msgid "Сбросить фильтры"
 msgstr "Сбросить фильтры"
 
@@ -214,10 +223,10 @@ msgstr "Синтетический профиль"
 msgid "Укажите город, дату, формат и бюджет, чтобы найти подходящих подрядчиков."
 msgstr "Укажите город, дату, формат и бюджет, чтобы найти подходящих подрядчиков."
 
-#: src/components/SearchForm.tsx:113
+#: src/components/SearchForm.tsx:142
 msgid "Формат"
 msgstr "Формат"
 
-#: src/components/SearchForm.tsx:174
+#: src/components/SearchForm.tsx:220
 msgid "Язык работы"
 msgstr "Язык работы"

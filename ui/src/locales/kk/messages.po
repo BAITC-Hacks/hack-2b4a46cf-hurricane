@@ -15,209 +15,218 @@ msgstr ""
 
 #: src/routes/__root.tsx:26
 msgid "EventMatch"
-msgstr ""
+msgstr "EventMatch"
 
 #: src/components/VendorCard.tsx:17
 msgid "Альтернатива"
-msgstr ""
+msgstr "Балама"
 
-#: src/components/SearchForm.tsx:132
+#: src/components/SearchForm.tsx:162
 msgid "Бюджет, ₸"
-msgstr ""
+msgstr "Бюджет, ₸"
 
 #. placeholder {0}: suggestion.budget_kzt
 #: src/routes/results.tsx:192
 msgid "Бюджет: {0} ₸"
-msgstr ""
+msgstr "Бюджет: {0} ₸"
 
 #: src/routes/results.tsx:103
 msgid "В ссылке не хватает параметров поиска"
-msgstr ""
+msgstr "Сілтемеде іздеу параметрлері жетіспейді"
 
 #: src/routes/results.tsx:150
 msgid "В этом городе нет подрядчиков выбранной категории"
-msgstr ""
+msgstr "Бұл қалада таңдалған санаттағы мердігерлер жоқ"
 
 #: src/routes/results.tsx:106
 msgid "Выберите фильтры на главной странице и создайте новую ссылку."
-msgstr ""
+msgstr "Басты беттен сүзгілерді таңдап, жаңа сілтеме жасаңыз."
 
-#: src/components/SearchForm.tsx:95
+#: src/components/SearchForm.tsx:124
 msgid "Город"
-msgstr ""
+msgstr "Қала"
 
 #. placeholder {0}: getLabel(options.data?.cities, suggestion.city ?? "")
 #: src/routes/results.tsx:193
 msgid "Город: {0}"
-msgstr ""
+msgstr "Қала: {0}"
 
-#: src/components/SearchForm.tsx:101
+#: src/components/SearchForm.tsx:130
 msgid "Дата"
-msgstr ""
+msgstr "Күні"
 
 #. placeholder {0}: suggestion.event_date
 #: src/routes/results.tsx:190
 msgid "Дата: {0}"
-msgstr ""
+msgstr "Күні: {0}"
 
-#: src/components/SearchForm.tsx:156
+#: src/components/SearchForm.tsx:202
 msgid "Длительность, ч"
-msgstr ""
+msgstr "Ұзақтығы, сағ"
 
-#: src/components/SearchForm.tsx:151
+#. placeholder {0}: compactKzt.format(amount)
+#: src/components/SearchForm.tsx:188
+msgid "до {0} ₸"
+msgstr "{0} ₸ дейін"
+
+#: src/components/SearchForm.tsx:197
 msgid "Дополнительные условия"
-msgstr ""
+msgstr "Қосымша шарттар"
 
 #: src/routes/results.tsx:56
 msgid "дороже бюджета"
-msgstr ""
+msgstr "бюджеттен қымбат"
 
 #: src/routes/index.tsx:73
 msgid "Загружаю подрядчиков…"
-msgstr ""
+msgstr "Мердігерлер жүктелуде…"
 
 #: src/routes/index.tsx:48
 msgid "Загружаю фильтры…"
-msgstr ""
+msgstr "Сүзгілер жүктелуде…"
 
 #: src/routes/results.tsx:54
 msgid "заняты на дату"
-msgstr ""
+msgstr "бұл күні бос емес"
 
 #: src/routes/results.tsx:91
 msgid "Изменить фильтры"
-msgstr ""
+msgstr "Сүзгілерді өзгерту"
 
-#: src/components/SearchForm.tsx:124
+#: src/components/SearchForm.tsx:153
 msgid "Категория"
-msgstr ""
+msgstr "Санат"
 
 #: src/components/VendorCard.tsx:15
 msgid "Лучшая цена"
-msgstr ""
+msgstr "Ең жақсы баға"
 
 #: src/components/VendorCard.tsx:14
 msgid "Лучшее совпадение"
-msgstr ""
+msgstr "Ең жақсы сәйкестік"
 
-#: src/components/SearchForm.tsx:162
-#: src/components/SearchForm.tsx:177
+#: src/components/SearchForm.tsx:208
+#: src/components/SearchForm.tsx:223
 msgid "Не важно"
-msgstr ""
+msgstr "Маңызды емес"
 
 #: src/routes/results.tsx:57
 msgid "не подходят по длительности"
-msgstr ""
+msgstr "ұзақтығы сәйкес келмейді"
 
 #. placeholder {0}: recommendation.data.rejections .map(({ reason, count }) => `${rejectionLabels[reason]}: ${count}`) .join(", ")
 #: src/routes/results.tsx:160
 msgid "Не прошли фильтры: {0}"
-msgstr ""
+msgstr "Сүзгіден өтпегендер: {0}"
 
 #: src/routes/results.tsx:55
 msgid "не работают в этом формате"
-msgstr ""
+msgstr "бұл форматта жұмыс істемейді"
 
 #: src/routes/results.tsx:58
 msgid "не работают на выбранном языке"
-msgstr ""
+msgstr "таңдалған тілде жұмыс істемейді"
 
 #: src/routes/index.tsx:78
 msgid "Не удалось загрузить подрядчиков. Попробуйте ещё раз."
-msgstr ""
+msgstr "Мердігерлерді жүктеу мүмкін болмады. Қайталап көріңіз."
 
 #: src/routes/index.tsx:53
 msgid "Не удалось загрузить фильтры. Попробуйте ещё раз."
-msgstr ""
+msgstr "Сүзгілерді жүктеу мүмкін болмады. Қайталап көріңіз."
 
 #: src/routes/results.tsx:119
 msgid "Не удалось подобрать подрядчиков. Проверьте фильтры и попробуйте ещё раз."
-msgstr ""
+msgstr "Мердігерлерді іріктеу мүмкін болмады. Сүзгілерді тексеріп, қайталап көріңіз."
+
+#: src/components/SearchForm.tsx:82
+msgid "Ничего не найдено"
+msgstr "Ештеңе табылмады"
 
 #. placeholder {0}: new Intl.NumberFormat("ru-RU").format(vendor.price_from_kzt)
 #: src/components/VendorCard.tsx:41
 msgid "От {0} ₸"
-msgstr ""
+msgstr "{0} ₸ бастап"
 
-#: src/components/SearchForm.tsx:88
+#: src/components/SearchForm.tsx:117
 msgid "Параметры события"
-msgstr ""
+msgstr "Іс-шара параметрлері"
 
 #: src/routes/results.tsx:151
 msgid "По этим условиям подрядчиков не нашлось"
-msgstr ""
+msgstr "Бұл шарттар бойынша мердігерлер табылмады"
 
 #: src/routes/index.tsx:60
 #: src/routes/index.tsx:85
 #: src/routes/results.tsx:129
 msgid "Повторить"
-msgstr ""
+msgstr "Қайталау"
 
 #: src/routes/results.tsx:113
 msgid "Подбираю подрядчиков…"
-msgstr ""
+msgstr "Мердігерлерді іріктеп жатырмын…"
 
 #: src/routes/results.tsx:95
 msgid "Подбор подрядчиков"
-msgstr ""
+msgstr "Мердігерлерді іріктеу"
 
-#: src/components/SearchForm.tsx:190
+#: src/components/SearchForm.tsx:236
 msgid "Подобрать"
-msgstr ""
+msgstr "Іріктеу"
 
 #: src/routes/index.tsx:68
 msgid "Подрядчики"
-msgstr ""
+msgstr "Мердігерлер"
 
 #: src/routes/index.tsx:39
 msgid "Подрядчики под ваше событие"
-msgstr ""
+msgstr "Іс-шараңызға арналған мердігерлер"
 
 #: src/routes/index.tsx:92
 msgid "Подрядчиков пока нет"
-msgstr ""
+msgstr "Әзірге мердігерлер жоқ"
 
 #: src/routes/results.tsx:137
 msgid "Подходящие подрядчики"
-msgstr ""
+msgstr "Сәйкес мердігерлер"
 
 #. placeholder {0}: vendors.data.length
 #: src/routes/index.tsx:111
 msgid "Показать всех подрядчиков ({0})"
-msgstr ""
+msgstr "Барлық мердігерлерді көрсету ({0})"
 
 #: src/routes/index.tsx:95
 msgid "Попробуйте вернуться позже."
-msgstr ""
+msgstr "Кейінірек қайта келіп көріңіз."
 
 #: src/routes/results.tsx:171
 msgid "Попробуйте другие условия"
-msgstr ""
+msgstr "Басқа шарттарды қолданып көріңіз"
 
 #: src/routes/results.tsx:154
 msgid "Попробуйте изменить дату, бюджет или город."
-msgstr ""
+msgstr "Күнді, бюджетті немесе қаланы өзгертіп көріңіз."
 
 #: src/components/VendorCard.tsx:16
 msgid "Премиум"
-msgstr ""
+msgstr "Премиум"
 
-#: src/components/SearchForm.tsx:200
+#: src/components/SearchForm.tsx:246
 msgid "Сбросить фильтры"
-msgstr ""
+msgstr "Сүзгілерді тазалау"
 
 #: src/components/VendorCard.tsx:30
 msgid "Синтетический профиль"
-msgstr ""
+msgstr "Синтетикалық профиль"
 
 #: src/routes/index.tsx:42
 msgid "Укажите город, дату, формат и бюджет, чтобы найти подходящих подрядчиков."
-msgstr ""
+msgstr "Сәйкес мердігерлерді табу үшін қаланы, күнді, форматты және бюджетті көрсетіңіз."
 
-#: src/components/SearchForm.tsx:113
+#: src/components/SearchForm.tsx:142
 msgid "Формат"
-msgstr ""
+msgstr "Формат"
 
-#: src/components/SearchForm.tsx:174
+#: src/components/SearchForm.tsx:220
 msgid "Язык работы"
-msgstr ""
+msgstr "Жұмыс тілі"

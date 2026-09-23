@@ -19,19 +19,19 @@ function RootLayout() {
   const { i18n } = useLingui();
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-8 max-md:px-4 max-md:py-4">
-      <header className="mb-8 flex items-center justify-between gap-3 border-b border-border pb-4 max-md:flex-col max-md:items-stretch">
-        <p className="text-base font-semibold tracking-tight">
+    <div className="mx-auto max-w-4xl px-6 py-6 max-md:px-3 max-md:py-2">
+      <header className="mb-4 flex items-center justify-between gap-3 border-b border-border pb-3 max-md:mb-3 max-md:pb-2">
+        <p className="text-lg font-semibold tracking-tight">
           <Link to="/">
             <Trans>EventMatch</Trans>
           </Link>
         </p>
-        <div className="flex items-center gap-3 max-md:items-stretch">
+        <div className="flex items-center gap-3">
           <Select value={i18n.locale} onValueChange={(value) => activateLocale(value as Locale)}>
-            <SelectTrigger className="min-h-10 w-24 max-md:min-h-11 max-md:w-full">
+            <SelectTrigger className="min-h-10 w-16 px-2 uppercase max-md:min-h-11">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent align="end" className="min-w-20">
               {locales.map((locale) => (
                 <SelectItem key={locale} value={locale} className="min-h-11">
                   {locale.toUpperCase()}
