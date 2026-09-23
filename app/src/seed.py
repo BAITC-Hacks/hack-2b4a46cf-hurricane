@@ -1,4 +1,4 @@
-"""Applies migrations, then upserts data/vendors.csv into `vendors`. Safe to run on every deploy."""
+"""Applies migrations, upserts data/vendors.csv into `vendors`, embeds descriptions. Rerun-safe."""
 
 import asyncio
 import csv
@@ -10,7 +10,9 @@ from alembic.config import Config
 from sqlalchemy import func, select
 from sqlalchemy.dialects.postgresql import insert
 
+from src.config import settings
 from src.db import SessionFactory, engine
+from src.llm import fetch_embeddings
 from src.models import Vendor
 from src.schemas import Category, City, EventFormat, Language, Option
 
@@ -76,10 +78,29 @@ async def seed_vendors() -> int:
         return await session.scalar(select(func.count()).select_from(Vendor))
 
 
+async def seed_embeddings() -> int:
+    if not settings.openai_api_key:
+        print(
+            "OPENAI_API_KEY is empty: description embeddings skipped, ranking uses the format regex"
+        )
+        return 0
+    async with SessionFactory() as session:
+        statement = select(Vendor).where(Vendor.description_embedding.is_(None)).order_by(Vendor.id)
+        vendors = list(await session.scalars(statement))
+        if not vendors:
+            return 0
+        embeddings = await fetch_embeddings([vendor.description for vendor in vendors])
+        for vendor, embedding in zip(vendors, embeddings, strict=True):
+            vendor.description_embedding = embedding
+        await session.commit()
+        return len(vendors)
+
+
 async def main() -> None:
     total = await seed_vendors()
+    embedded = await seed_embeddings()
     await engine.dispose()
-    print(f"vendors in table: {total}")
+    print(f"vendors in table: {total}, descriptions embedded now: {embedded}")
 
 
 if __name__ == "__main__":

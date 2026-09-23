@@ -27,6 +27,10 @@ services:
   seed:
     build: ./app
     command: ["python", "-m", "src.seed"]
+    # The key lets the seed embed descriptions; without it ranking falls back to the format regex.
+    env_file:
+      - path: .env
+        required: false
     environment:
       DATABASE_URL: postgresql+asyncpg://app:app@db:5432/app
     depends_on:

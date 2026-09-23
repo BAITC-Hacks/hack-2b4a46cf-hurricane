@@ -2,7 +2,7 @@
 
 from datetime import date, datetime
 
-from sqlalchemy import Date, DateTime, String, Text, func
+from sqlalchemy import Date, DateTime, Float, String, Text, func
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -28,4 +28,6 @@ class Vendor(Base):
     synthetic: Mapped[bool]
     city_imputed: Mapped[bool]
     price_imputed: Mapped[bool]
+    # Filled by the seed when an OpenAI key is present; NULL keeps ranking on the format regex.
+    description_embedding: Mapped[list[float] | None] = mapped_column(ARRAY(Float), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

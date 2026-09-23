@@ -5,7 +5,7 @@ from datetime import date
 
 import pytest
 
-from src import explain, recommend
+from src import embeddings, explain, recommend, suggestions
 from src.errors import UpstreamError
 from src.explain import BANNED_PHRASES
 from src.models import Vendor
@@ -35,6 +35,10 @@ def catalog(monkeypatch):
     async def fetch_llm_json(_system, _prompt):
         raise UpstreamError("test: model unavailable")
 
+    async def fetch_query_embedding(_order):
+        return None
+
+    monkeypatch.setattr(recommend, "fetch_query_embedding", fetch_query_embedding)
     monkeypatch.setattr(recommend, "fetch_pool", fetch_pool)
     monkeypatch.setattr(recommend, "fetch_city_suggestions", fetch_city_suggestions)
     monkeypatch.setattr(explain, "fetch_llm_json", fetch_llm_json)
@@ -185,6 +189,37 @@ def test_no_candidates_pass_suggests_cities_where_the_order_passes(catalog):
         budget_kzt=600_000,
     )
     other_cities = [v for v in catalog if "photographer" in v.categories and v.city != "astana"]
-    suggestions = recommend.get_city_suggestions(other_cities, order)
-    assert suggestions and all(s.kind == "city" and s.count > 0 for s in suggestions)
-    assert all(s.city != "astana" for s in suggestions)
+    hints = suggestions.get_city_suggestions(other_cities, order)
+    assert hints and all(s.kind == "city" and s.count > 0 for s in hints)
+    assert all(s.city != "astana" for s in hints)
+
+
+def test_description_ranks_take_top_three_and_break_ties_by_id():
+    def vendor(vendor_id, embedding):
+        return Vendor(id=vendor_id, description_embedding=embedding)
+
+    vendors = [
+        vendor("B", [1.0, 0.0]),
+        vendor("A", [1.0, 0.0]),
+        vendor("C", [0.0, 1.0]),
+        vendor("D", [0.7, 0.7]),
+        vendor("E", None),
+    ]
+    assert embeddings.get_description_ranks(vendors, [1.0, 0.0]) == {"A": 1, "B": 2, "D": 3}
+    assert embeddings.get_description_ranks(vendors, None) == {}
+
+
+def test_closest_description_scores_and_marks_the_card(catalog, monkeypatch):
+    hosts = [v for v in catalog if v.city == "almaty" and "host" in v.categories]
+    target = next(v for v in hosts if v.id == "HK-77838")
+    for vendor in hosts:
+        vendor.description_embedding = [1.0, 0.0] if vendor is target else [0.0, 1.0]
+
+    async def fetch_query_embedding(_order):
+        return [1.0, 0.0]
+
+    monkeypatch.setattr(recommend, "fetch_query_embedding", fetch_query_embedding)
+    response = get_recommendation("2026-10-17", **HOST_ORDER)
+    closest = next(card for card in response.cards if card.id == "HK-77838")
+    assert "description" in closest.matched_on
+    assert "по смыслу" in closest.explanation or closest.role != "best_match"

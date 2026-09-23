@@ -11,6 +11,7 @@ class Settings(BaseSettings):
 
     openai_api_key: str = ""
     openai_model: str = "gpt-5.4-mini"
+    openai_embedding_model: str = "text-embedding-3-small"
 
     @property
     def cors_origin_list(self) -> list[str]:

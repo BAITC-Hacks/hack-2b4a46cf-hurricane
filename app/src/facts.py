@@ -17,6 +17,7 @@ class Pick:
     vendor: Vendor
     role: Role
     matched_on: list[MatchedOn]
+    closest_by_description: bool = False
 
 
 def format_kzt(amount: int) -> str:
@@ -91,6 +92,8 @@ def get_pick_facts(
         f"языки работы: {get_language_labels(vendor.languages)}"
         + (f"; заказчику нужны: {get_language_labels(order.languages)}" if order.languages else ""),
     ]
+    if pick.closest_by_description:
+        facts.append("из прошедших отбор его описание по смыслу ближе всех к запросу")
     if vendor.max_hours is None:
         facts.append("работа не привязана к часам на площадке")
     else:

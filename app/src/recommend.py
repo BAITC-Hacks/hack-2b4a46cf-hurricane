@@ -1,9 +1,7 @@
-"""POST /recommend: hard filters with rejection reasons, three role slots, relaxed-query hints."""
+"""POST /recommend: pool, hard filters, scoring with description ranks, three role slots, hints."""
 
 import asyncio
 import re
-from collections import Counter
-from datetime import timedelta
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
@@ -11,24 +9,22 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.db import get_session
+from src.embeddings import fetch_query_embedding, get_description_ranks
 from src.errors import UpstreamError
-from src.explain import Pick, build_cards
+from src.explain import build_cards
+from src.facts import Pick
+from src.filters import get_rejection_reasons, get_rejections
 from src.models import Vendor
-from src.schemas import (
-    CATALOG_DATE_FROM,
-    CATALOG_DATE_TO,
-    EventFormat,
-    MatchedOn,
-    RecommendIn,
-    RecommendOut,
-    RejectionOut,
-    SuggestionOut,
+from src.schemas import EventFormat, MatchedOn, RecommendIn, RecommendOut
+from src.suggestions import (
+    fetch_city_suggestions,
+    get_budget_suggestion,
+    get_date_suggestions,
+    get_duration_suggestion,
 )
 
 router = APIRouter()
 
-# Order matters: a vendor is counted under its first failed check, so counts sum to the pool.
-REASON_ORDER = ("busy", "format", "budget", "duration", "language")
 FORMAT_PATTERNS = {
     EventFormat.wedding: r"свад",
     EventFormat.toi: r"\bто(й|я|е|ю|ев|ях|ям)\b",
@@ -37,29 +33,18 @@ FORMAT_PATTERNS = {
     EventFormat.anniversary: r"юбиле",
     EventFormat.birthday: r"рожден",
 }
-DATE_OFFSETS = (-1, 1, -2, 2, -3, 3)
+# The three descriptions closest to the order by meaning get 3, 2 and 1 points.
+DESCRIPTION_POINTS = {1: 3, 2: 2, 3: 1}
 DB_TIMEOUT_SECONDS = 5
-
-
-def get_rejection_reasons(vendor: Vendor, order: RecommendIn) -> list[str]:
-    checks = {
-        "busy": order.event_date in vendor.busy_dates,
-        "format": order.event_format not in vendor.event_formats,
-        "budget": vendor.price_from_kzt > order.budget_kzt,
-        "duration": bool(order.duration_hours)
-        and vendor.max_hours is not None
-        and vendor.max_hours < order.duration_hours,
-        "language": not set(order.languages) <= set(vendor.languages),
-    }
-    return [reason for reason in REASON_ORDER if checks[reason]]
 
 
 def is_format_in_description(vendor: Vendor, event_format: str) -> bool:
     return re.search(FORMAT_PATTERNS[event_format], vendor.description, re.IGNORECASE) is not None
 
 
-def get_match_score(vendor: Vendor, order: RecommendIn) -> int:
+def get_match_score(vendor: Vendor, order: RecommendIn, description_rank: int | None) -> int:
     score = 3 if is_format_in_description(vendor, order.event_format) else 0
+    score += DESCRIPTION_POINTS.get(description_rank, 0)
     score += len(set(vendor.languages) - set(order.languages))
     has_hours_reserve = (
         vendor.max_hours is None or vendor.max_hours >= (order.duration_hours or 0) + 2
@@ -70,21 +55,23 @@ def get_match_score(vendor: Vendor, order: RecommendIn) -> int:
     return score
 
 
-def get_matched_on(vendor: Vendor, order: RecommendIn) -> list[MatchedOn]:
+def get_matched_on(vendor: Vendor, order: RecommendIn, is_closest: bool) -> list[MatchedOn]:
     matched: list[MatchedOn] = ["date", "format", "budget"]
     if order.duration_hours and vendor.max_hours is not None:
         matched.append("duration")
     if order.languages:
         matched.append("language")
-    if is_format_in_description(vendor, order.event_format):
+    if is_closest or is_format_in_description(vendor, order.event_format):
         matched.append("description")
     return matched
 
 
-def pick_role_vendors(passed: list[Vendor], order: RecommendIn) -> list[Pick]:
+def pick_role_vendors(passed: list[Vendor], order: RecommendIn, ranks: dict) -> list[Pick]:
     if not passed:
         return []
-    by_score = sorted(passed, key=lambda v: (-get_match_score(v, order), v.price_from_kzt, v.id))
+    by_score = sorted(
+        passed, key=lambda v: (-get_match_score(v, order, ranks.get(v.id)), v.price_from_kzt, v.id)
+    )
     role_winners = {
         "best_match": by_score[0],
         "best_price": min(passed, key=lambda v: (v.price_from_kzt, v.id)),
@@ -99,63 +86,11 @@ def pick_role_vendors(passed: list[Vendor], order: RecommendIn) -> list[Pick]:
             break
         picked.setdefault(vendor.id, "alternative")
     vendors_by_id = {vendor.id: vendor for vendor in passed}
-    return [
-        Pick(vendors_by_id[vendor_id], role, get_matched_on(vendors_by_id[vendor_id], order))
-        for vendor_id, role in list(picked.items())[:3]
-    ]
-
-
-def get_rejections(pool: list[Vendor], order: RecommendIn) -> list[RejectionOut]:
-    first_reasons = Counter(
-        reasons[0] for vendor in pool if (reasons := get_rejection_reasons(vendor, order))
-    )
-    return [
-        RejectionOut(reason=r, count=first_reasons[r]) for r in REASON_ORDER if first_reasons[r]
-    ]
-
-
-def get_date_suggestions(pool: list[Vendor], order: RecommendIn, passed_count: int) -> list:
-    suggestions = []
-    for offset in DATE_OFFSETS:
-        day = order.event_date + timedelta(days=offset)
-        if not CATALOG_DATE_FROM <= day <= CATALOG_DATE_TO:
-            continue
-        relaxed = order.model_copy(update={"event_date": day})
-        count = sum(1 for vendor in pool if not get_rejection_reasons(vendor, relaxed))
-        if count > passed_count:
-            suggestions.append(SuggestionOut(kind="date", count=count, event_date=day))
-        if len(suggestions) == 2:
-            break
-    return suggestions
-
-
-def get_budget_suggestion(pool: list[Vendor], order: RecommendIn, passed_count: int) -> list:
-    prices = sorted(
-        vendor.price_from_kzt
-        for vendor in pool
-        if get_rejection_reasons(vendor, order) == ["budget"]
-    )
-    if not prices:
-        return []
-    added = min(3 - passed_count, len(prices))
-    return [SuggestionOut(kind="budget", count=passed_count + added, budget_kzt=prices[added - 1])]
-
-
-def get_duration_suggestion(pool: list[Vendor], order: RecommendIn, passed_count: int) -> list:
-    hours = sorted(
-        (
-            vendor.max_hours
-            for vendor in pool
-            if get_rejection_reasons(vendor, order) == ["duration"]
-        ),
-        reverse=True,
-    )
-    if not hours:
-        return []
-    added = min(3 - passed_count, len(hours))
-    return [
-        SuggestionOut(kind="duration", count=passed_count + added, duration_hours=hours[added - 1])
-    ]
+    picks = []
+    for vendor_id, role in list(picked.items())[:3]:
+        vendor, is_closest = vendors_by_id[vendor_id], ranks.get(vendor_id) == 1
+        picks.append(Pick(vendor, role, get_matched_on(vendor, order, is_closest), is_closest))
+    return picks
 
 
 async def fetch_pool(session: AsyncSession, order: RecommendIn) -> list[Vendor]:
@@ -169,38 +104,21 @@ async def fetch_pool(session: AsyncSession, order: RecommendIn) -> list[Vendor]:
         raise UpstreamError("Каталог не отвечает, повторите запрос") from error
 
 
-def get_city_suggestions(other_cities_pool: list[Vendor], order: RecommendIn) -> list:
-    # Counts vendors that pass every condition, not just exist: "в Астане подходят 2" is actionable.
-    passing = Counter(
-        vendor.city for vendor in other_cities_pool if not get_rejection_reasons(vendor, order)
-    )
-    return [
-        SuggestionOut(kind="city", count=count, city=city)
-        for city, count in sorted(passing.items(), key=lambda pair: (-pair[1], pair[0]))
-    ]
-
-
-async def fetch_city_suggestions(session: AsyncSession, order: RecommendIn) -> list:
-    statement = select(Vendor).where(
-        Vendor.categories.any(order.category), Vendor.city != order.city
-    )
-    return get_city_suggestions(list(await session.scalars(statement)), order)
-
-
 @router.post("/recommend", response_model=RecommendOut)
 async def recommend(
     order: RecommendIn, session: Annotated[AsyncSession, Depends(get_session)]
 ) -> RecommendOut:
-    pool = await fetch_pool(session, order)
+    pool, query_embedding = await asyncio.gather(
+        fetch_pool(session, order), fetch_query_embedding(order)
+    )
     if not pool:
-        suggestions = await fetch_city_suggestions(session, order)
         return RecommendOut(
             outcome="no_category_in_city",
             cards=[],
             pool_size=0,
             passed_count=0,
             rejections=[],
-            suggestions=suggestions,
+            suggestions=await fetch_city_suggestions(session, order),
         )
     passed = [vendor for vendor in pool if not get_rejection_reasons(vendor, order)]
     suggestions = []
@@ -211,7 +129,8 @@ async def recommend(
     if not passed:
         suggestions += await fetch_city_suggestions(session, order)
     busy_count = sum(1 for vendor in pool if order.event_date in vendor.busy_dates)
-    cards = await build_cards(pick_role_vendors(passed, order), order, busy_count, len(pool))
+    picks = pick_role_vendors(passed, order, get_description_ranks(passed, query_embedding))
+    cards = await build_cards(picks, order, busy_count, len(pool))
     return RecommendOut(
         outcome="matched" if cards else "no_candidates_pass",
         cards=cards,

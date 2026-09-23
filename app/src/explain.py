@@ -88,7 +88,9 @@ def get_template_explanation(
     price, budget = format_kzt(vendor.price_from_kzt), format_kzt(order.budget_kzt)
     remainder = format_kzt(order.budget_kzt - vendor.price_from_kzt)
     matches = [f"берёт формат «{order.event_format.label}»"]
-    if "description" in pick.matched_on:
+    if pick.closest_by_description:
+        matches.append("описание по смыслу ближе всех к заказу")
+    elif "description" in pick.matched_on:
         matches.append("сам пишет о нём в описании")
     if order.languages:
         matches.append(f"работает на нужных языках: {get_language_labels(order.languages)}")
