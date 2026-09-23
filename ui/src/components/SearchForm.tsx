@@ -140,7 +140,7 @@ export function SearchForm({
                 max={options.date_to}
                 value={filters.event_date}
                 onChange={(event) => setFilters({ ...filters, event_date: event.target.value })}
-                className="h-10 min-w-0 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 max-md:h-11"
+                className="block h-10 min-w-0 w-full appearance-none rounded-lg border border-input bg-background px-3 text-left text-sm outline-none [&::-webkit-date-and-time-value]:text-left focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 max-md:h-11"
               />
             </label>
             <FilterSelect
@@ -175,7 +175,7 @@ export function SearchForm({
                   onChange={(event) =>
                     setFilters({ ...filters, budget_kzt: getBudgetFromInput(event.target.value) })
                   }
-                  className="h-10 min-w-0 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 max-md:h-11"
+                  className="block h-10 min-w-0 w-full appearance-none rounded-lg border border-input bg-background px-3 text-left text-sm outline-none [&::-webkit-date-and-time-value]:text-left focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 max-md:h-11"
                 />
               </label>
               <div className="flex flex-wrap gap-1.5">
