@@ -4,7 +4,7 @@ import { useState, type FormEvent } from "react";
 
 import type { Schemas } from "@/api";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Combobox,
   ComboboxContent,
@@ -112,11 +112,6 @@ export function SearchForm({
 
   return (
     <Card className="rounded-lg border border-border bg-card py-6 ring-0 [--card-spacing:--spacing(6)] max-md:py-4 max-md:[--card-spacing:--spacing(4)]">
-      <CardHeader>
-        <CardTitle className="text-xl font-semibold">
-          <Trans>Параметры события</Trans>
-        </CardTitle>
-      </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="grid gap-4">
           <div className="grid grid-cols-3 gap-3 max-md:grid-cols-1">

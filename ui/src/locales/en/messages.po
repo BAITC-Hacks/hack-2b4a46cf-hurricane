@@ -21,7 +21,7 @@ msgstr "EventMatch"
 msgid "Альтернатива"
 msgstr "Alternative"
 
-#: src/components/SearchForm.tsx:162
+#: src/components/SearchForm.tsx:157
 msgid "Бюджет, ₸"
 msgstr "Budget, ₸"
 
@@ -42,7 +42,7 @@ msgstr "There are no vendors of this category in this city"
 msgid "Выберите фильтры на главной странице и создайте новую ссылку."
 msgstr "Choose filters on the home page and create a new link."
 
-#: src/components/SearchForm.tsx:124
+#: src/components/SearchForm.tsx:119
 msgid "Город"
 msgstr "City"
 
@@ -51,7 +51,7 @@ msgstr "City"
 msgid "Город: {0}"
 msgstr "City: {0}"
 
-#: src/components/SearchForm.tsx:130
+#: src/components/SearchForm.tsx:125
 msgid "Дата"
 msgstr "Date"
 
@@ -60,16 +60,16 @@ msgstr "Date"
 msgid "Дата: {0}"
 msgstr "Date: {0}"
 
-#: src/components/SearchForm.tsx:202
+#: src/components/SearchForm.tsx:197
 msgid "Длительность, ч"
 msgstr "Duration, h"
 
 #. placeholder {0}: compactKzt.format(amount)
-#: src/components/SearchForm.tsx:188
+#: src/components/SearchForm.tsx:183
 msgid "до {0} ₸"
 msgstr "up to {0} ₸"
 
-#: src/components/SearchForm.tsx:197
+#: src/components/SearchForm.tsx:192
 msgid "Дополнительные условия"
 msgstr "More conditions"
 
@@ -93,7 +93,7 @@ msgstr "busy on this date"
 msgid "Изменить фильтры"
 msgstr "Change filters"
 
-#: src/components/SearchForm.tsx:153
+#: src/components/SearchForm.tsx:148
 msgid "Категория"
 msgstr "Category"
 
@@ -105,8 +105,8 @@ msgstr "Best price"
 msgid "Лучшее совпадение"
 msgstr "Best match"
 
-#: src/components/SearchForm.tsx:208
-#: src/components/SearchForm.tsx:223
+#: src/components/SearchForm.tsx:203
+#: src/components/SearchForm.tsx:218
 msgid "Не важно"
 msgstr "Any"
 
@@ -148,10 +148,6 @@ msgstr "Nothing found"
 msgid "От {0} ₸"
 msgstr "From {0} ₸"
 
-#: src/components/SearchForm.tsx:117
-msgid "Параметры события"
-msgstr "Event details"
-
 #: src/routes/results.tsx:151
 msgid "По этим условиям подрядчиков не нашлось"
 msgstr "No vendors match these conditions"
@@ -170,7 +166,7 @@ msgstr "Matching vendors…"
 msgid "Подбор подрядчиков"
 msgstr "Vendor matching"
 
-#: src/components/SearchForm.tsx:236
+#: src/components/SearchForm.tsx:231
 msgid "Подобрать"
 msgstr "Match"
 
@@ -207,7 +203,7 @@ msgstr "Try changing the date, budget or city."
 msgid "Премиум"
 msgstr "Premium"
 
-#: src/components/SearchForm.tsx:246
+#: src/components/SearchForm.tsx:241
 msgid "Сбросить фильтры"
 msgstr "Reset filters"
 
@@ -215,10 +211,10 @@ msgstr "Reset filters"
 msgid "Синтетический профиль"
 msgstr "Synthetic profile"
 
-#: src/components/SearchForm.tsx:142
+#: src/components/SearchForm.tsx:137
 msgid "Формат"
 msgstr "Format"
 
-#: src/components/SearchForm.tsx:220
+#: src/components/SearchForm.tsx:215
 msgid "Язык работы"
 msgstr "Working language"

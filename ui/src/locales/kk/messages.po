@@ -21,7 +21,7 @@ msgstr "EventMatch"
 msgid "Альтернатива"
 msgstr "Балама"
 
-#: src/components/SearchForm.tsx:162
+#: src/components/SearchForm.tsx:157
 msgid "Бюджет, ₸"
 msgstr "Бюджет, ₸"
 
@@ -42,7 +42,7 @@ msgstr "Бұл қалада таңдалған санаттағы мердіге
 msgid "Выберите фильтры на главной странице и создайте новую ссылку."
 msgstr "Басты беттен сүзгілерді таңдап, жаңа сілтеме жасаңыз."
 
-#: src/components/SearchForm.tsx:124
+#: src/components/SearchForm.tsx:119
 msgid "Город"
 msgstr "Қала"
 
@@ -51,7 +51,7 @@ msgstr "Қала"
 msgid "Город: {0}"
 msgstr "Қала: {0}"
 
-#: src/components/SearchForm.tsx:130
+#: src/components/SearchForm.tsx:125
 msgid "Дата"
 msgstr "Күні"
 
@@ -60,16 +60,16 @@ msgstr "Күні"
 msgid "Дата: {0}"
 msgstr "Күні: {0}"
 
-#: src/components/SearchForm.tsx:202
+#: src/components/SearchForm.tsx:197
 msgid "Длительность, ч"
 msgstr "Ұзақтығы, сағ"
 
 #. placeholder {0}: compactKzt.format(amount)
-#: src/components/SearchForm.tsx:188
+#: src/components/SearchForm.tsx:183
 msgid "до {0} ₸"
 msgstr "{0} ₸ дейін"
 
-#: src/components/SearchForm.tsx:197
+#: src/components/SearchForm.tsx:192
 msgid "Дополнительные условия"
 msgstr "Қосымша шарттар"
 
@@ -93,7 +93,7 @@ msgstr "бұл күні бос емес"
 msgid "Изменить фильтры"
 msgstr "Сүзгілерді өзгерту"
 
-#: src/components/SearchForm.tsx:153
+#: src/components/SearchForm.tsx:148
 msgid "Категория"
 msgstr "Санат"
 
@@ -105,8 +105,8 @@ msgstr "Ең жақсы баға"
 msgid "Лучшее совпадение"
 msgstr "Ең жақсы сәйкестік"
 
-#: src/components/SearchForm.tsx:208
-#: src/components/SearchForm.tsx:223
+#: src/components/SearchForm.tsx:203
+#: src/components/SearchForm.tsx:218
 msgid "Не важно"
 msgstr "Маңызды емес"
 
@@ -148,10 +148,6 @@ msgstr "Ештеңе табылмады"
 msgid "От {0} ₸"
 msgstr "{0} ₸ бастап"
 
-#: src/components/SearchForm.tsx:117
-msgid "Параметры события"
-msgstr "Іс-шара параметрлері"
-
 #: src/routes/results.tsx:151
 msgid "По этим условиям подрядчиков не нашлось"
 msgstr "Бұл шарттар бойынша мердігерлер табылмады"
@@ -170,7 +166,7 @@ msgstr "Мердігерлерді іріктеп жатырмын…"
 msgid "Подбор подрядчиков"
 msgstr "Мердігерлерді іріктеу"
 
-#: src/components/SearchForm.tsx:236
+#: src/components/SearchForm.tsx:231
 msgid "Подобрать"
 msgstr "Іріктеу"
 
@@ -207,7 +203,7 @@ msgstr "Күнді, бюджетті немесе қаланы өзгертіп 
 msgid "Премиум"
 msgstr "Премиум"
 
-#: src/components/SearchForm.tsx:246
+#: src/components/SearchForm.tsx:241
 msgid "Сбросить фильтры"
 msgstr "Сүзгілерді тазалау"
 
@@ -215,10 +211,10 @@ msgstr "Сүзгілерді тазалау"
 msgid "Синтетический профиль"
 msgstr "Синтетикалық профиль"
 
-#: src/components/SearchForm.tsx:142
+#: src/components/SearchForm.tsx:137
 msgid "Формат"
 msgstr "Формат"
 
-#: src/components/SearchForm.tsx:220
+#: src/components/SearchForm.tsx:215
 msgid "Язык работы"
 msgstr "Жұмыс тілі"
