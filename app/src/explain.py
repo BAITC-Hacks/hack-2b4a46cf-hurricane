@@ -99,12 +99,12 @@ def get_template_explanation(
         matches.append(f"работает на нужных языках: {get_language_labels(order.languages)}")
     # Exactly two sentences, like the LLM is asked for: the lead with the price, then one detail.
     lead = {
-        "best_price": f"Самый бережный к бюджету: от {price}, остаётся {remainder} на остальное.",
-        "premium": f"Самый дорогой из тех, кто укладывается в {budget}: от {price}, "
+        "best_price": f"Самый бережный к бюджету: {price}, остаётся {remainder} на остальное.",
+        "premium": f"Самый дорогой из тех, кто укладывается в {budget}: {price}, "
         f"запас всего {remainder}.",
         "best_match": f"Точнее всех попадает в заказ: {', '.join(matches)}, "
-        f"от {price}, остаётся {remainder} на остальное.",
-        "alternative": f"{get_alternative_reason(pick, picks, order).capitalize()}: от {price}, "
+        f"{price}, остаётся {remainder} на остальное.",
+        "alternative": f"{get_alternative_reason(pick, picks, order).capitalize()}: {price}, "
         f"остаётся {remainder} на остальное.",
     }[pick.role]
     second = get_template_second_sentence(pick, picks, order, busy, pool)

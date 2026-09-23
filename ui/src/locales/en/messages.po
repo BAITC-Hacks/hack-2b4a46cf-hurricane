@@ -218,11 +218,6 @@ msgstr "Nothing found"
 msgid "нужный язык"
 msgstr "right language"
 
-#. placeholder {0}: new Intl.NumberFormat(i18n.locale).format(vendor.price_from_kzt)
-#: src/components/VendorCard.tsx:85
-msgid "от {0} ₸"
-msgstr "from {0} ₸"
-
 #: src/components/VendorCard.tsx:89
 msgid "Оценочная цена — уточните у подрядчика"
 msgstr "Estimated price — confirm with the vendor"

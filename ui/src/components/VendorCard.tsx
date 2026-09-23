@@ -82,7 +82,7 @@ export function VendorCard({ vendor }: { vendor: Vendor }) {
           <CardTitle className="text-lg leading-6 font-semibold">{vendor.name}</CardTitle>
           <div className="shrink-0 text-right">
             <p className="text-lg leading-6 font-semibold tabular-nums whitespace-nowrap">
-              <Trans>от {new Intl.NumberFormat(i18n.locale).format(vendor.price_from_kzt)} ₸</Trans>
+              {new Intl.NumberFormat(i18n.locale).format(vendor.price_from_kzt)} ₸
             </p>
             {vendor.price_imputed && (
               <p className="max-w-40 text-xs leading-4 text-muted-foreground">

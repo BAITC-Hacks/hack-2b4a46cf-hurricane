@@ -105,7 +105,7 @@ def get_pick_facts(
     remainder = format_kzt(order.budget_kzt - vendor.price_from_kzt)
     facts = [
         get_role_fact(pick, picks, order),
-        f"цена от {format_kzt(vendor.price_from_kzt)}, "
+        f"цена по каталогу {format_kzt(vendor.price_from_kzt)}, "
         f"это {share}% бюджета {format_kzt(order.budget_kzt)}, остаётся {remainder} на остальное",
         f"свободен {order.event_date:%d.%m.%Y}",
         f"берёт формат «{order.event_format.label}»"
