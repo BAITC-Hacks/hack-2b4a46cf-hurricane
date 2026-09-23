@@ -1,0 +1,59 @@
+services:
+  db:
+    image: postgres:17.6-alpine
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+      POSTGRES_DB: app
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d app"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  migrate:
+    build: ./app
+    command: ["alembic", "upgrade", "head"]
+    environment:
+      DATABASE_URL: postgresql+asyncpg://app:app@db:5432/app
+    depends_on:
+      db:
+        condition: service_healthy
+
+  app:
+    build: ./app
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgresql+asyncpg://app:app@db:5432/app
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-6-luna}
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  ui:
+    build:
+      context: ./ui
+      target: dev
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+      VITE_USE_POLLING: "true"
+    volumes:
+      - ./ui/src:/app/src
+      - ./ui/index.html:/app/index.html
+    ports:
+      - "${UI_PORT:-5173}:5173"
+    depends_on:
+      app:
+        condition: service_started
+
+volumes:
+  db-data:

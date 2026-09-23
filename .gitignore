@@ -1,0 +1,65 @@
+# ---------- secrets ----------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# ---------- python (app/) ----------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.venv/
+venv/
+env/
+.python-version.local
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+.hypothesis/
+.coverage
+.coverage.*
+htmlcov/
+celerybeat-schedule
+*.log
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ---------- node / vite (ui/) ----------
+node_modules/
+ui/dist/
+ui/dist-ssr/
+ui/build/
+*.tsbuildinfo
+.eslintcache
+.yarn/*
+!.yarn/releases
+!.yarn/plugins
+.pnp.*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.vite/
+*.local
+
+# ---------- docker / infra ----------
+docker-compose.override.yml
+compose.override.yaml
+.railway/
+
+# ---------- editors / os ----------
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+Desktop.ini

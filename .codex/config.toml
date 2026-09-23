@@ -1,0 +1,7 @@
+# Project-scope Codex config. Requires the project to be trusted (see DEPLOYMENT.md).
+# Railway MCP is served by the Railway CLI itself. `railway mcp` proxies mcp.railway.com;
+# on a bad network switch args to ["mcp", "local"] (in-process server, talks only to the Railway API).
+
+[mcp_servers.railway]
+command = "railway"
+args = ["mcp"]

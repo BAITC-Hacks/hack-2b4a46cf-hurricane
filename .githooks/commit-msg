@@ -1,0 +1,6 @@
+#!/bin/sh
+# Rejects commit messages that mention AI co-authorship. Works in Git for Windows too.
+if grep -iqE 'co-authored-by|claude|codex|generated with' "$1"; then
+  echo "commit-msg: remove AI co-authorship mentions from the message" >&2
+  exit 1
+fi

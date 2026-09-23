@@ -1,0 +1,9 @@
+# Rendered by the nginx image at startup: ${PORT} is substituted from the environment (Railway sets it).
+server {
+    listen ${PORT};
+    root /usr/share/nginx/html;
+    index index.html;
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
