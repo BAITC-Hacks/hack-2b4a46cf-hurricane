@@ -80,11 +80,11 @@ function ResultsPage() {
         <Trans>Изменить фильтры</Trans>
       </Link>
       {filters && (
-        <ul className="flex flex-wrap gap-2" aria-label={t`Выбранные фильтры`}>
+        <ul className="flex flex-wrap gap-1.5" aria-label={t`Выбранные фильтры`}>
           {summary.map((label) => (
             <li
               key={label}
-              className="rounded-full border border-border bg-card px-3 py-1.5 text-base font-medium"
+              className="cursor-default rounded-md bg-muted px-2 py-0.5 text-sm text-foreground select-none"
             >
               {label}
             </li>
