@@ -6,8 +6,8 @@ WORKDIR /app
 USER node
 # Manifests first: this layer is cached until dependencies change.
 COPY --chown=node:node package.json yarn.lock ./
-RUN --mount=type=cache,target=/home/node/.cache/yarn,uid=1000,gid=1000 \
-    yarn install --frozen-lockfile
+# No cache mount: Railway rejects mounts without a service-specific id; layer caching still applies.
+RUN yarn install --frozen-lockfile && yarn cache clean
 
 # Stage `dev`: Vite dev server with hot reload, used by docker-compose.yml.
 FROM deps AS dev

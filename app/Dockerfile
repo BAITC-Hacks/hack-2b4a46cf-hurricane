@@ -5,8 +5,8 @@ ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy UV_PYTHON_DOWNLOADS=0
 WORKDIR /app
 # Manifests first: this layer is cached until dependencies change.
 COPY pyproject.toml uv.lock ./
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-dev
+# No cache mount: Railway rejects mounts without a service-specific id; layer caching still applies.
+RUN uv sync --frozen --no-dev --no-cache
 # Code last: changes often, invalidates only the layers below.
 COPY . .
 

@@ -7,7 +7,8 @@ export default defineRailway(() => {
   const postgresVolume = volume("postgres-volume", {
     alerts: { usage: { "100": {}, "80": {}, "95": {} } },
     allowOnlineResize: true,
-    region: "europe-west4",
+    // Railway stores the volume under its full zone id; the short name would trigger a new migration.
+    region: "europe-west4-drams3a",
     sizeMB: 50000,
   });
 
@@ -16,9 +17,9 @@ export default defineRailway(() => {
     replicas: { "europe-west4": 1 },
     build: { builder: "DOCKERFILE", dockerfilePath: "Dockerfile" },
     deploy: {
-      preDeployCommand: ["alembic upgrade head", "python -m src.seed"],
+      // Railway accepts one pre-deploy command: src.seed applies migrations, then loads the catalog.
+      preDeployCommand: ["python -m src.seed"],
       healthcheckPath: "/health",
-      restartPolicyType: "ON_FAILURE",
     },
     // Values stay in Railway: DATABASE_URL is the Postgres reference with the asyncpg scheme.
     env: {
@@ -32,7 +33,7 @@ export default defineRailway(() => {
   const ui = service("ui", {
     replicas: { "europe-west4": 1 },
     build: { builder: "DOCKERFILE", dockerfilePath: "Dockerfile" },
-    deploy: { healthcheckPath: "/", restartPolicyType: "ON_FAILURE" },
+    deploy: { healthcheckPath: "/" },
     env: { VITE_API_URL: preserve() },
   });
 
