@@ -7,7 +7,7 @@ from datetime import timedelta
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
-from sqlalchemy import func, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.db import get_session
@@ -153,14 +153,19 @@ async def fetch_pool(session: AsyncSession, order: RecommendIn) -> list[Vendor]:
 
 
 async def fetch_city_suggestions(session: AsyncSession, order: RecommendIn) -> list:
-    statement = (
-        select(Vendor.city, func.count())
-        .where(Vendor.categories.any(order.category), Vendor.city != order.city)
-        .group_by(Vendor.city)
-        .order_by(func.count().desc(), Vendor.city)
+    statement = select(Vendor).where(
+        Vendor.categories.any(order.category), Vendor.city != order.city
     )
-    rows = await session.execute(statement)
-    return [SuggestionOut(kind="city", count=count, city=city) for city, count in rows]
+    try:
+        async with asyncio.timeout(DB_TIMEOUT_SECONDS):
+            vendors = list(await session.scalars(statement))
+    except TimeoutError as error:
+        raise UpstreamError("Каталог не отвечает, повторите запрос") from error
+    counts = Counter(vendor.city for vendor in vendors if not get_rejection_reasons(vendor, order))
+    return [
+        SuggestionOut(kind="city", count=count, city=city)
+        for city, count in sorted(counts.items(), key=lambda pair: (-pair[1], pair[0]))
+    ]
 
 
 @router.post("/recommend", response_model=RecommendOut)
