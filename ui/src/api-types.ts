@@ -4,24 +4,7 @@
  */
 
 export interface paths {
-  "/health": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Get Health */
-    get: operations["get_health"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/ask": {
+  "/recommend": {
     parameters: {
       query?: never;
       header?: never;
@@ -30,8 +13,8 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Ask */
-    post: operations["ask"];
+    /** Recommend */
+    post: operations["recommend"];
     delete?: never;
     options?: never;
     head?: never;
@@ -42,25 +25,101 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
-    /** AskIn */
-    AskIn: {
-      /** Prompt */
-      prompt: string;
-    };
-    /** AskOut */
-    AskOut: {
-      /** Answer */
-      answer: string;
-    };
     /** HTTPValidationError */
     HTTPValidationError: {
       /** Detail */
       detail?: components["schemas"]["ValidationError"][];
     };
-    /** HealthOut */
-    HealthOut: {
-      /** Status */
-      status: string;
+    /** RecommendIn */
+    RecommendIn: {
+      /**
+       * City
+       * @enum {string}
+       */
+      city: "Алматы" | "Астана" | "Зарубежье";
+      /**
+       * Event Date
+       * Format: date
+       */
+      event_date: string;
+      /**
+       * Event Format
+       * @enum {string}
+       */
+      event_format: "свадьба" | "той" | "корпоратив" | "конференция" | "юбилей" | "день рождения";
+      /**
+       * Category
+       * @enum {string}
+       */
+      category:
+        | "Ведущий"
+        | "Ведущий церемонии"
+        | "Фотограф"
+        | "Видеограф"
+        | "Фото и видеобудки"
+        | "Лайв-бэнд"
+        | "Инструменталист"
+        | "Национальный ансамбль"
+        | "Танцевальный коллектив"
+        | "Шоу-программа"
+        | "Банкетный зал"
+        | "Ресторан"
+        | "Отель"
+        | "Загородная площадка"
+        | "Флорист"
+        | "Декоратор"
+        | "Подарки и сувениры";
+      /** Budget Kzt */
+      budget_kzt: number;
+      /** Duration Hours */
+      duration_hours?: number | null;
+      /** Languages */
+      languages?: ("русский" | "казахский" | "английский")[];
+    };
+    /** RecommendOut */
+    RecommendOut: {
+      /**
+       * Outcome
+       * @enum {string}
+       */
+      outcome: "matched" | "no_category_in_city" | "no_candidates_pass";
+      /** Cards */
+      cards: components["schemas"]["VendorCardOut"][];
+      /** Pool Size */
+      pool_size: number;
+      /** Rejections */
+      rejections: components["schemas"]["RejectionOut"][];
+      /** Suggestions */
+      suggestions: components["schemas"]["SuggestionOut"][];
+    };
+    /** RejectionOut */
+    RejectionOut: {
+      /**
+       * Reason
+       * @enum {string}
+       */
+      reason: "busy" | "format" | "budget" | "duration" | "language";
+      /** Count */
+      count: number;
+    };
+    /**
+     * SuggestionOut
+     * @description A relaxed query that would return more vendors. The frontend can rerun it in one click.
+     */
+    SuggestionOut: {
+      /**
+       * Kind
+       * @enum {string}
+       */
+      kind: "date" | "budget" | "city";
+      /** Count */
+      count: number;
+      /** Event Date */
+      event_date?: string | null;
+      /** Budget Kzt */
+      budget_kzt?: number | null;
+      /** City */
+      city?: ("Алматы" | "Астана" | "Зарубежье") | null;
     };
     /** ValidationError */
     ValidationError: {
@@ -75,6 +134,43 @@ export interface components {
       /** Context */
       ctx?: Record<string, never>;
     };
+    /** VendorCardOut */
+    VendorCardOut: {
+      /** Id */
+      id: string;
+      /** Name */
+      name: string;
+      /** Categories */
+      categories: string[];
+      /** City */
+      city: string;
+      /** Price From Kzt */
+      price_from_kzt: number;
+      /** Languages */
+      languages: string[];
+      /** Max Hours */
+      max_hours: number | null;
+      /**
+       * Role
+       * @enum {string}
+       */
+      role: "best_match" | "best_price" | "premium" | "alternative";
+      /** Explanation */
+      explanation: string;
+      /**
+       * Explanation Source
+       * @enum {string}
+       */
+      explanation_source: "llm" | "template";
+      /** Matched On */
+      matched_on: ("date" | "format" | "budget" | "duration" | "language" | "description")[];
+      /** Synthetic */
+      synthetic: boolean;
+      /** Price Imputed */
+      price_imputed: boolean;
+      /** City Imputed */
+      city_imputed: boolean;
+    };
   };
   responses: never;
   parameters: never;
@@ -84,27 +180,7 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-  get_health: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Successful Response */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["HealthOut"];
-        };
-      };
-    };
-  };
-  ask: {
+  recommend: {
     parameters: {
       query?: never;
       header?: never;
@@ -113,7 +189,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["AskIn"];
+        "application/json": components["schemas"]["RecommendIn"];
       };
     };
     responses: {
@@ -123,7 +199,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["AskOut"];
+          "application/json": components["schemas"]["RecommendOut"];
         };
       };
       /** @description Validation Error */

@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     cors_origins: str = "http://localhost:5173"
 
     openai_api_key: str = ""
-    openai_model: str = "gpt-6-luna"
+    openai_model: str = "gpt-5.4-mini"
 
     nvidia_api_key: str = ""
 

@@ -32,8 +32,9 @@ ui (React + Vite, Railway) ──HTTP/JSON──▶  app (FastAPI, Railway)  ─
 - Бэкенд: Python 3.12, FastAPI, SQLAlchemy 2 (async), Alembic, Pydantic v2, asyncpg, `openai`, uv
 - Фронтенд: React 19, TypeScript, Vite 7, Tailwind CSS v4, shadcn на Base UI, Lingui, yarn, `openapi-fetch` с типами из `/openapi.json`
 - База: PostgreSQL 17
-- Модель: `OPENAI_MODEL` (по умолчанию `gpt-6-luna`)
-- Данные: <датасеты / сиды, источник и размер, либо «не используются»>
+- Инфраструктура: Railway, конфигурация в `.railway/railway.ts` (SDK `railway` в корневом `package.json`)
+- Модель: `OPENAI_MODEL` (по умолчанию `gpt-5.4-mini`)
+- Данные: каталог организатора, 66 профилей подрядчиков, `app/data/vendors.csv`. Загружается в таблицу `vendors` командой `python -m src.seed` (upsert по `id`, повторный запуск безопасен). В compose это делает сервис `seed` после миграций, на Railway `preDeployCommand`.
 
 ## Запуск
 
@@ -49,13 +50,13 @@ python dev.py
 
 Другие команды: `python dev.py down` остановить (`down -v` также удалит базу), `python dev.py logs app` логи сервиса, `python dev.py status` состояние контейнеров, `python dev.py check` только проверка инструментов. Без скрипта то же самое делает `docker compose up --build`.
 
-Compose поднимает Postgres, применяет миграции (сервис `migrate`), затем стартует API и фронтенд.
+Compose поднимает Postgres, применяет миграции (сервис `migrate`), загружает каталог (сервис `seed`), затем стартует API и фронтенд.
 
 ### Разработка без Docker
 
 ```bash
 # бэкенд (нужен запущенный Postgres, например `docker compose up db`)
-cd app && uv sync && uv run alembic upgrade head && uv run python -m src
+cd app && uv sync && uv run alembic upgrade head && uv run python -m src.seed && uv run python -m src
 
 # фронтенд
 cd ui && yarn install && yarn dev
@@ -78,7 +79,7 @@ cd ui && yarn install && yarn dev
 | Имя | Назначение | Пример |
 |---|---|---|
 | `OPENAI_API_KEY` | ключ OpenAI | `sk-...` |
-| `OPENAI_MODEL` | модель | `gpt-6-luna` |
+| `OPENAI_MODEL` | модель | `gpt-5.4-mini` |
 | `NVIDIA_API_KEY` | ключ NVIDIA API (генерация изображений, запасной LLM), необязательный | `nvapi-...` |
 | `CORS_ORIGINS` | разрешённые origin через запятую | `https://<ui>.up.railway.app` |
 | `DATABASE_URL` | строка подключения к Postgres | `postgresql+asyncpg://app:app@db:5432/app` |
@@ -91,7 +92,7 @@ cd ui && yarn install && yarn dev
 Всё на Railway, один проект `hurricane`, одно окружение `production`, три сервиса. Автодеплоя из GitHub нет, деплой ручной.
 
 - **Postgres:** плагин Railway. Его `DATABASE_URL` подставить в сервис `app`, заменив префикс `postgresql://` на `postgresql+asyncpg://`.
-- **app:** пустой сервис, деплой через `railway up` из `app/`, билдер Dockerfile. Переменные: `DATABASE_URL`, `OPENAI_API_KEY` и `CORS_ORIGINS` с публичным доменом сервиса `ui`. Миграции выполняет `preDeployCommand` из `app/railway.json`.
+- **app:** пустой сервис, деплой через `railway up` из `app/`, билдер Dockerfile. Переменные: `DATABASE_URL`, `OPENAI_API_KEY` и `CORS_ORIGINS` с публичным доменом сервиса `ui`. Миграции и загрузку каталога выполняет `preDeployCommand`. Настройки всех сервисов и регион `europe-west4` описаны в `.railway/railway.ts`.
 - **ui:** пустой сервис, деплой через `railway up` из `ui/`, билдер Dockerfile (собирается последний stage `prod`). Переменная `VITE_API_URL` с публичным доменом сервиса `app` вшивается при сборке, после её изменения нужен redeploy. Порт берётся из `PORT`, который Railway задаёт сам.
 
 ## Известные ограничения
@@ -101,3 +102,6 @@ cd ui && yarn install && yarn dev
 ## Команда
 
 - <Имя, роль>
+
+
+cd app && echo "$OPENAI_API_KEY" | railway variable set OPENAI_API_KEY --stdin --skip-deploys

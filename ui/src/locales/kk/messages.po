@@ -13,30 +13,6 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/routes/index.tsx:53
-msgid "Думаю…"
-msgstr "Ойланып жатырмын…"
-
-#: src/routes/index.tsx:33
-msgid "онлайн"
-msgstr "онлайн"
-
-#: src/routes/index.tsx:53
-msgid "Отправить"
-msgstr "Жіберу"
-
-#: src/routes/index.tsx:33
-msgid "офлайн"
-msgstr "офлайн"
-
 #: src/routes/__root.tsx:26
 msgid "Приложение"
 msgstr "Қолданба"
-
-#: src/routes/index.tsx:43
-msgid "Спросите что-нибудь"
-msgstr "Бірдеңе сұраңыз"
-
-#: src/routes/index.tsx:28
-msgid "Статус API:"
-msgstr "API күйі:"
