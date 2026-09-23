@@ -102,9 +102,13 @@ def get_pick_facts(
         facts.append(f"до {vendor.max_hours} ч на площадке{asked}")
     facts += get_distinctions(pick, picks)
     # Said once, on the first card: repeated on all three it makes the cards interchangeable.
-    if pick is picks[0] and busy:
+    if pick is picks[0]:
         city = order.city.label
-        facts.append(f"из {pool} в этой категории в городе {city} на эту дату заняты {busy}")
+        facts.append(
+            f"из {pool} в этой категории в городе {city} на эту дату заняты {busy}"
+            if busy
+            else f"в городе {city} на эту дату в этой категории никто не занят, спешить не нужно"
+        )
     if vendor.price_imputed:
         facts.append("цена в каталоге оценочная")
     return facts
