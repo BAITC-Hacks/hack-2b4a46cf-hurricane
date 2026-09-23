@@ -52,23 +52,23 @@ msgstr "In {0}, this category has only {1}. All match."
 msgid "в бюджете"
 msgstr "within budget"
 
-#: src/routes/results.tsx:74
+#: src/routes/results.tsx:75
 msgid "В других городах эта категория есть, подсказки ниже."
 msgstr "This category exists in other cities, see the hints below."
 
-#: src/routes/results.tsx:119
+#: src/routes/results.tsx:123
 msgid "В ссылке не хватает параметров поиска"
 msgstr "The link is missing search parameters"
 
-#: src/routes/results.tsx:172
+#: src/routes/results.tsx:176
 msgid "В этом городе нет подрядчиков выбранной категории"
 msgstr "There are no vendors of this category in this city"
 
-#: src/routes/results.tsx:84
+#: src/routes/results.tsx:85
 msgid "Все варианты дороже {budget} ₸. Подсказка по бюджету ниже."
 msgstr "Every option costs more than {budget} ₸. See the budget hint below."
 
-#: src/routes/results.tsx:122
+#: src/routes/results.tsx:126
 msgid "Выберите фильтры на главной странице и создайте новую ссылку."
 msgstr "Choose filters on the home page and create a new link."
 
@@ -149,11 +149,11 @@ msgstr "Any duration"
 msgid "Любой язык"
 msgstr "Any language"
 
-#: src/routes/results.tsx:82
+#: src/routes/results.tsx:83
 msgid "На {date} в этой категории все заняты. Соседние даты ниже."
 msgstr "Everyone in this category is busy on {date}. Nearby dates are below."
 
-#: src/routes/results.tsx:102
+#: src/routes/results.tsx:104
 msgid "Назад"
 msgstr "Back"
 
@@ -196,16 +196,16 @@ msgstr "Couldn't load vendors. Try again."
 msgid "Не удалось загрузить фильтры. Попробуйте ещё раз."
 msgstr "Couldn't load filters. Try again."
 
-#: src/routes/results.tsx:140
+#: src/routes/results.tsx:144
 msgid "Не удалось подобрать подрядчиков. Проверьте фильтры и попробуйте ещё раз."
 msgstr "Couldn't match vendors. Check the filters and try again."
 
-#: src/routes/results.tsx:86
+#: src/routes/results.tsx:87
 msgid "Никто не ведёт на выбранных языках. Уберите требование к языку."
 msgstr "Nobody works in the selected languages. Remove the language requirement."
 
 #. placeholder {0}: filters.duration_hours ?? 0
-#: src/routes/results.tsx:85
+#: src/routes/results.tsx:86
 msgid "Никто не работает {0} ч подряд. Уберите ограничение по часам."
 msgstr "Nobody works {0} h in a row. Remove the hours limit."
 
@@ -227,17 +227,17 @@ msgstr "from {0} ₸"
 msgid "Оценочная цена — уточните у подрядчика"
 msgstr "Estimated price — confirm with the vendor"
 
-#: src/routes/results.tsx:173
+#: src/routes/results.tsx:177
 msgid "По этим условиям подрядчиков не нашлось"
 msgstr "No vendors match these conditions"
 
 #: src/routes/index.tsx:79
 #: src/routes/index.tsx:109
-#: src/routes/results.tsx:150
+#: src/routes/results.tsx:154
 msgid "Повторить"
 msgstr "Retry"
 
-#: src/routes/results.tsx:129
+#: src/routes/results.tsx:133
 msgid "Подбираю подрядчиков…"
 msgstr "Matching vendors…"
 
@@ -264,7 +264,7 @@ msgstr "fits by description"
 msgid "Подходят {0} из {1} профилей в {2}."
 msgstr "{0} of {1} profiles in {2} match."
 
-#: src/routes/results.tsx:158
+#: src/routes/results.tsx:162
 msgid "Подходящие подрядчики"
 msgstr "Matching vendors"
 
@@ -281,7 +281,7 @@ msgstr "Try coming back later."
 msgid "Попробуйте другие условия"
 msgstr "Try other conditions"
 
-#: src/routes/results.tsx:77
+#: src/routes/results.tsx:78
 msgid "Попробуйте изменить дату, бюджет или город."
 msgstr "Try changing the date, budget or city."
 
@@ -305,11 +305,19 @@ msgstr "free on the date"
 msgid "Синтетический профиль"
 msgstr "Synthetic profile"
 
+#: src/components/CopyLinkButton.tsx:29
+msgid "Скопировано"
+msgstr "Copied"
+
+#: src/components/CopyLinkButton.tsx:29
+msgid "Скопировать ссылку"
+msgstr "Copy link"
+
 #: src/components/ResultsFilters.tsx:61
 msgid "Скрыть фильтры"
 msgstr "Hide filters"
 
-#: src/routes/results.tsx:75
+#: src/routes/results.tsx:76
 msgid "Такой категории нет ни в одном городе каталога."
 msgstr "No city in the catalog has this category."
 
@@ -321,7 +329,7 @@ msgstr "drop the language requirement"
 msgid "Формат"
 msgstr "Format"
 
-#: src/routes/results.tsx:83
+#: src/routes/results.tsx:84
 msgid "Формат «{format}» здесь никто из этой категории не берёт. Попробуйте другой город."
 msgstr "Nobody in this category here takes the “{format}” format. Try another city."
 

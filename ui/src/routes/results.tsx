@@ -8,6 +8,7 @@ import { fetchCatalogOptions, fetchRecommendations, type Schemas } from "@/api";
 import { ResultsFilters } from "@/components/ResultsFilters";
 import { SearchForm, type SearchFilters } from "@/components/SearchForm";
 import { SearchHints } from "@/components/SearchHints";
+import { CopyLinkButton } from "@/components/CopyLinkButton";
 import { buttonVariants } from "@/components/ui/button";
 import { VendorCard, VendorCardSkeleton } from "@/components/VendorCard";
 import { formatEventDate } from "@/i18n";
@@ -90,17 +91,20 @@ function ResultsPage() {
 
   return (
     <div className="grid gap-6 pb-12">
-      <Link
-        to="/"
-        search={filters ? search : {}}
-        className={buttonVariants({
-          variant: "ghost",
-          className: "h-10 w-fit gap-2 px-3 transition active:scale-[0.98] max-md:h-11",
-        })}
-      >
-        <ArrowLeft className="size-4" aria-hidden="true" />
-        <Trans>Назад</Trans>
-      </Link>
+      <div className="flex items-center justify-between gap-3">
+        <Link
+          to="/"
+          search={filters ? search : {}}
+          className={buttonVariants({
+            variant: "ghost",
+            className: "h-10 w-fit gap-2 px-3 transition active:scale-[0.98] max-md:h-11",
+          })}
+        >
+          <ArrowLeft className="size-4" aria-hidden="true" />
+          <Trans>Назад</Trans>
+        </Link>
+        {filters && <CopyLinkButton />}
+      </div>
       {filters && !isEmpty && (
         <ResultsFilters
           options={options.data}
