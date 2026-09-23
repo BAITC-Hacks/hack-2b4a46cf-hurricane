@@ -1,16 +1,25 @@
-"""Check the main recommendation scenarios against the unchanged catalog CSV."""
+"""Main recommendation scenarios from the Definition of Done, run on the CSV without DB or LLM."""
 
 import asyncio
-import re
 from datetime import date
 
 import pytest
 
 from src import explain, recommend
 from src.errors import UpstreamError
+from src.explain import BANNED_PHRASES
 from src.models import Vendor
-from src.schemas import City, RecommendIn
+from src.schemas import RecommendIn
 from src.seed import read_vendor_rows
+
+HOST_ORDER = dict(
+    city="almaty",
+    event_format="wedding",
+    category="host",
+    budget_kzt=1_500_000,
+    duration_hours=6,
+    languages=["ru", "kk"],
+)
 
 
 @pytest.fixture
@@ -18,151 +27,141 @@ def catalog(monkeypatch):
     vendors = [Vendor(**row) for row in read_vendor_rows()]
 
     async def fetch_pool(_session, order):
-        return [
-            vendor
-            for vendor in vendors
-            if vendor.city == order.city and order.category in vendor.categories
-        ]
+        return [v for v in vendors if v.city == order.city and order.category in v.categories]
 
     async def fetch_city_suggestions(_session, _order):
         return []
 
-    async def fetch_model(_system, _prompt):
-        raise UpstreamError("local test: model unavailable")
+    async def fetch_llm_json(_system, _prompt):
+        raise UpstreamError("test: model unavailable")
 
     monkeypatch.setattr(recommend, "fetch_pool", fetch_pool)
     monkeypatch.setattr(recommend, "fetch_city_suggestions", fetch_city_suggestions)
-    monkeypatch.setattr(explain, "fetch_llm_json", fetch_model)
+    monkeypatch.setattr(explain, "fetch_llm_json", fetch_llm_json)
     return vendors
 
 
-def get_order(category, day, budget, **conditions):
-    return RecommendIn(
-        city="almaty",
-        event_date=date.fromisoformat(day),
-        event_format="wedding",
-        category=category,
-        budget_kzt=budget,
-        **conditions,
-    )
+def get_recommendation(day: str, **order):
+    request = RecommendIn(event_date=date.fromisoformat(day), **order)
+    return asyncio.run(recommend.recommend(request, session=None))
 
 
-def get_recommendation(order):
-    return asyncio.run(recommend.recommend(order, session=None))
+def assert_explanations_are_distinct(cards):
+    texts = [card.explanation for card in cards]
+    assert len(set(texts)) == len(texts)
+    for text in texts:
+        assert 20 <= len(text) <= 400
+        assert not any(phrase in text.lower() for phrase in BANNED_PHRASES)
 
 
-def assert_verified_cards(cards):
-    for card in cards:
-        assert len(re.split(r"(?<=[.!?])\s+(?=[А-Я])", card.explanation)) == 2
-        assert "цена от" in card.explanation
-        assert "хватит" not in card.explanation
-        assert "переработ" not in card.explanation
-        assert ("оценочная" in card.explanation) == card.price_imputed
-
-
-def test_florists_have_real_counts_and_distinct_facts(catalog):
-    response = get_recommendation(get_order("florist", "2026-11-13", 300_000))
+def test_dense_category_gives_three_cards_with_own_roles(catalog):
+    response = get_recommendation("2026-10-17", **HOST_ORDER)
     assert response.outcome == "matched"
-    assert response.pool_size == 3
-    assert response.passed_count == 2
-    assert [(reason.reason, reason.count) for reason in response.rejections] == [("budget", 1)]
-    assert {card.id for card in response.cards} == {"HK-39372", "HK-90001"}
-    assert any("цветовую палитру" in card.explanation for card in response.cards)
-    assert any("цветочное оформление" in card.explanation for card in response.cards)
-    assert_verified_cards(response.cards)
+    assert (response.pool_size, response.passed_count, len(response.cards)) == (10, 3, 3)
+    assert [(r.reason, r.count) for r in response.rejections] == [
+        ("busy", 5),
+        ("format", 1),
+        ("budget", 1),
+    ]
+    assert len({card.role for card in response.cards}) == 3
+    assert "5 из 10" in response.cards[0].explanation
+    assert_explanations_are_distinct(response.cards)
 
 
-def test_short_pool_without_rejections_and_missing_category(catalog):
-    two = get_recommendation(get_order("gifts", "2026-09-23", 50_000_000))
-    assert two.pool_size == two.passed_count == len(two.cards) == 2
-    assert two.rejections == []
-
-    absent = get_order("host", "2026-10-17", 1_500_000).model_copy(update={"city": City.abroad})
-    empty = get_recommendation(absent)
-    assert empty.outcome == "no_category_in_city"
-    assert empty.pool_size == empty.passed_count == 0
-
-
-def test_ensembles_use_source_details_or_admit_equal_fit(catalog):
-    response = get_recommendation(get_order("national-ensemble", "2026-10-09", 500_000))
-    cards = {card.id: card for card in response.cards}
-    assert {"HK-39301", "HK-92824"} <= cards.keys()
-    assert "перед главой государства" in cards["HK-39301"].explanation
-    assert "Подтверждённого отличия" in cards["HK-92824"].explanation
-    assert cards["HK-39301"].explanation != cards["HK-92824"].explanation
-    assert_verified_cards(response.cards)
+def test_busy_december_date_shrinks_the_same_query(catalog):
+    response = get_recommendation("2026-12-19", **HOST_ORDER)
+    assert response.outcome == "matched"
+    assert (response.passed_count, len(response.cards)) == (1, 1)
+    assert [(r.reason, r.count) for r in response.rejections] == [("busy", 9)]
+    assert "9 из 10" in response.cards[0].explanation
+    assert {s.kind for s in response.suggestions} == {"date"}
+    assert all(s.count > 1 for s in response.suggestions)
 
 
-def test_estimated_prices_and_date_changes(catalog):
-    hosts = get_recommendation(get_order("host", "2026-10-11", 1_500_000))
-    emilia = next(card for card in hosts.cards if card.id == "HK-42352")
-    assert emilia.price_imputed
-    assert "оценочная" in emilia.explanation
-    for day, expected in (
-        ("2026-11-14", ["HK-90001"]),
-        ("2026-11-15", ["HK-39372"]),
-        ("2026-11-21", []),
-    ):
-        response = get_recommendation(get_order("florist", day, 300_000))
-        assert [card.id for card in response.cards] == expected
-        assert response.passed_count == len(expected)
-        if not expected:
-            assert response.outcome == "no_candidates_pass"
-            assert [(reason.reason, reason.count) for reason in response.rejections] == [
-                ("busy", 3)
-            ]
-    chopper = get_recommendation(get_order("florist", "2026-11-15", 300_000)).cards[0]
-    assert chopper.price_imputed and "оценочная" in chopper.explanation
+def test_rare_category_shows_how_many_and_why_fewer(catalog):
+    response = get_recommendation(
+        "2026-10-20", city="almaty", event_format="wedding", category="florist", budget_kzt=400_000
+    )
+    assert response.outcome == "matched"
+    assert (response.pool_size, response.passed_count) == (3, 1)
+    assert [(r.reason, r.count) for r in response.rejections] == [("busy", 2)]
+    assert "2" in response.cards[0].explanation and "3" in response.cards[0].explanation
 
 
-def test_extra_conditions_and_repeatability(catalog):
-    order = get_order("host", "2026-10-17", 1_500_000, duration_hours=6, languages=["ru", "kk"])
-    first = get_recommendation(order)
-    second = get_recommendation(order)
-    assert [card.id for card in first.cards] == [card.id for card in second.cards]
-    assert [card.explanation for card in first.cards] == [card.explanation for card in second.cards]
+def test_candidates_exist_but_none_pass(catalog):
+    response = get_recommendation(
+        "2026-10-10",
+        city="astana",
+        event_format="corporate",
+        category="photographer",
+        budget_kzt=600_000,
+    )
+    assert response.outcome == "no_candidates_pass"
+    assert response.cards == []
+    assert (response.pool_size, response.passed_count) == (3, 0)
+    assert [(r.reason, r.count) for r in response.rejections] == [("format", 3)]
+
+
+def test_category_missing_in_city(catalog):
+    response = get_recommendation(
+        "2026-10-10", city="abroad", event_format="wedding", category="hotel", budget_kzt=600_000
+    )
+    assert response.outcome == "no_category_in_city"
+    assert (response.pool_size, response.passed_count, response.cards) == (0, 0, [])
+
+
+def test_same_query_gives_same_order(catalog):
+    first = get_recommendation("2026-10-17", **HOST_ORDER)
+    second = get_recommendation("2026-10-17", **HOST_ORDER)
+    assert [c.id for c in first.cards] == [c.id for c in second.cards]
+    assert [c.role for c in first.cards] == [c.role for c in second.cards]
+    assert [c.explanation for c in first.cards] == [c.explanation for c in second.cards]
+
+
+def test_passed_vendors_satisfy_every_condition(catalog):
+    response = get_recommendation("2026-10-17", **HOST_ORDER)
     by_id = {vendor.id: vendor for vendor in catalog}
-    for card in first.cards:
+    for card in response.cards:
         vendor = by_id[card.id]
-        assert {"ru", "kk"} <= set(vendor.languages)
+        assert date(2026, 10, 17) not in vendor.busy_dates
+        assert "wedding" in vendor.event_formats
+        assert vendor.price_from_kzt <= 1_500_000
         assert vendor.max_hours is None or vendor.max_hours >= 6
-        assert "языки: казахский, русский" in card.explanation
-    assert_verified_cards(first.cards)
+        assert {"ru", "kk"} <= set(vendor.languages)
 
 
 @pytest.mark.parametrize(
     "answer",
     [
         {},
-        {"selected_facts": {"HK-39372": "unknown"}},
-        {"selected_facts": {"HK-39372": "description:под цветовую палитру"}},
-        {"selected_facts": {"HK-39372": ""}},
+        {"explanations": "not a dict"},
+        {"explanations": {"HK-35215": "Отличный выбор для вашего мероприятия, рекомендуем."}},
+        {"explanations": {"HK-35215": "Коротко."}},
+        {"explanations": {"HK-35215": "Цена ориентировочная, уточняйте, зато свободен и подходит"}},
     ],
 )
-def test_invalid_model_selection_falls_back_without_reordering(catalog, monkeypatch, answer):
-    order = get_order("florist", "2026-11-13", 300_000)
-    baseline = get_recommendation(order)
+def test_bad_llm_answer_falls_back_to_template_without_reordering(catalog, monkeypatch, answer):
+    baseline = get_recommendation("2026-10-17", **HOST_ORDER)
 
-    async def fetch_model(_system, _prompt):
+    async def fetch_llm_json(_system, _prompt):
         return answer
 
-    monkeypatch.setattr(explain, "fetch_llm_json", fetch_model)
-    response = get_recommendation(order)
-    assert [card.id for card in response.cards] == [card.id for card in baseline.cards]
-    assert [card.explanation for card in response.cards] == [
-        card.explanation for card in baseline.cards
-    ]
-    assert all(card.explanation_source == "template" for card in response.cards)
-    assert_verified_cards(response.cards)
+    monkeypatch.setattr(explain, "fetch_llm_json", fetch_llm_json)
+    response = get_recommendation("2026-10-17", **HOST_ORDER)
+    assert [c.id for c in response.cards] == [c.id for c in baseline.cards]
+    assert all(c.explanation_source == "template" for c in response.cards)
+    assert [c.explanation for c in response.cards] == [c.explanation for c in baseline.cards]
 
 
-def test_valid_model_ids_only_select_existing_vendor_facts(catalog, monkeypatch):
-    async def fetch_model(_system, _prompt):
-        return {"selected_facts": {"HK-39372": "lowest_price"}}
+def test_valid_llm_text_is_used_only_for_its_card(catalog, monkeypatch):
+    text = "Точнее всех попадает в свадьбу: ведёт на казахском и русском, 900 000 ₸ это 60% бюджета"
 
-    monkeypatch.setattr(explain, "fetch_llm_json", fetch_model)
-    response = get_recommendation(get_order("florist", "2026-11-13", 300_000))
-    chopper = next(card for card in response.cards if card.id == "HK-39372")
-    assert chopper.explanation_source == "llm"
-    assert "самая низкая цена от" in chopper.explanation
-    assert_verified_cards(response.cards)
+    async def fetch_llm_json(_system, _prompt):
+        return {"explanations": {"HK-35215": text}}
+
+    monkeypatch.setattr(explain, "fetch_llm_json", fetch_llm_json)
+    response = get_recommendation("2026-10-17", **HOST_ORDER)
+    sources = {card.id: card.explanation_source for card in response.cards}
+    assert sources.pop("HK-35215") == "llm"
+    assert set(sources.values()) == {"template"}
+    assert next(c.explanation for c in response.cards if c.id == "HK-35215") == text

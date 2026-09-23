@@ -45,13 +45,16 @@ export function SearchHints({
   const languages = (filters.languages ?? []).map((value) => getLabel("languages", value));
   const format = getLabel("event_formats", filters.event_format);
 
+  // Each reason says what it means for this order and what to do next, not only the count.
   const reasons: Record<Schemas["RejectionOut"]["reason"], (count: number) => string> = {
-    busy: (count) => t`Заняты ${date}: ${getVendorCount(count)}.`,
-    format: (count) => t`Не берут формат «${format}»: ${getVendorCount(count)}.`,
+    busy: (count) =>
+      t`Заняты ${date}: ${getVendorCount(count)}. Соседние даты ниже, в сезон календари закрываются быстро.`,
+    format: (count) =>
+      t`Не берут формат «${format}»: ${getVendorCount(count)}. Это условие не смягчить, оно про сам формат события.`,
     budget: (count) =>
-      t`Цена от выше ${money.format(filters.budget_kzt)} ₸: ${getVendorCount(count)}.`,
+      t`Дороже ${money.format(filters.budget_kzt)} ₸: ${getVendorCount(count)}. Если бюджет гибкий, их можно вернуть.`,
     duration: (count) =>
-      t`Указанный предел работы меньше ${filters.duration_hours ?? 0} ч: ${getVendorCount(count)}.`,
+      t`Не работают ${filters.duration_hours ?? 0} ч подряд: ${getVendorCount(count)}. Короче программа, шире выбор.`,
     language: (count) => t`Не ведут на языках ${languages.join(", ")}: ${getVendorCount(count)}.`,
   };
 
@@ -74,6 +77,14 @@ export function SearchHints({
         detail: found,
         search: { ...search, budget_kzt: suggestion.budget_kzt },
       };
+    if (suggestion.kind === "duration" && suggestion.duration_hours)
+      return {
+        key: `duration-${index}`,
+        icon: Clock,
+        title: t`До ${suggestion.duration_hours} ч`,
+        detail: found,
+        search: { ...search, duration_hours: suggestion.duration_hours },
+      };
     return {
       key: `city-${index}`,
       icon: MapPin,
@@ -92,7 +103,8 @@ export function SearchHints({
       search: { ...search, languages: undefined },
     });
   }
-  if (rejectedBy.has("duration") && filters.duration_hours) {
+  const hasDurationSuggestion = recommendation.suggestions.some((s) => s.kind === "duration");
+  if (rejectedBy.has("duration") && filters.duration_hours && !hasDurationSuggestion) {
     hints.push({
       key: "duration",
       icon: Clock,

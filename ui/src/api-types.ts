@@ -183,13 +183,15 @@ export interface components {
        * Kind
        * @enum {string}
        */
-      kind: "date" | "budget" | "city";
+      kind: "date" | "budget" | "duration" | "city";
       /** Count */
       count: number;
       /** Event Date */
       event_date?: string | null;
       /** Budget Kzt */
       budget_kzt?: number | null;
+      /** Duration Hours */
+      duration_hours?: number | null;
       city?: components["schemas"]["City"] | null;
     };
     /** ValidationError */

@@ -141,6 +141,23 @@ def get_budget_suggestion(pool: list[Vendor], order: RecommendIn, passed_count: 
     return [SuggestionOut(kind="budget", count=passed_count + added, budget_kzt=prices[added - 1])]
 
 
+def get_duration_suggestion(pool: list[Vendor], order: RecommendIn, passed_count: int) -> list:
+    hours = sorted(
+        (
+            vendor.max_hours
+            for vendor in pool
+            if get_rejection_reasons(vendor, order) == ["duration"]
+        ),
+        reverse=True,
+    )
+    if not hours:
+        return []
+    added = min(3 - passed_count, len(hours))
+    return [
+        SuggestionOut(kind="duration", count=passed_count + added, duration_hours=hours[added - 1])
+    ]
+
+
 async def fetch_pool(session: AsyncSession, order: RecommendIn) -> list[Vendor]:
     statement = select(Vendor).where(
         Vendor.city == order.city, Vendor.categories.any(order.category)
@@ -183,7 +200,9 @@ async def recommend(
     if len(passed) < 3:
         suggestions = get_date_suggestions(pool, order, len(passed))
         suggestions += get_budget_suggestion(pool, order, len(passed))
-    cards = await build_cards(pick_role_vendors(passed, order), order)
+        suggestions += get_duration_suggestion(pool, order, len(passed))
+    busy_count = sum(1 for vendor in pool if order.event_date in vendor.busy_dates)
+    cards = await build_cards(pick_role_vendors(passed, order), order, busy_count, len(pool))
     return RecommendOut(
         outcome="matched" if cards else "no_candidates_pass",
         cards=cards,

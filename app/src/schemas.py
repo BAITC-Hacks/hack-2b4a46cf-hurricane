@@ -39,6 +39,11 @@ class Language(Option):
     kk = "kk", "казахский"
     en = "en", "английский"
 
+    @property
+    def prepositional(self) -> str:
+        # "работает на английском", not "на языках: английский".
+        return self.label.removesuffix("ий") + "ом"
+
 
 class Category(Option):
     host = "host", "Ведущий"
@@ -64,7 +69,7 @@ Outcome = Literal["matched", "no_category_in_city", "no_candidates_pass"]
 Role = Literal["best_match", "best_price", "premium", "alternative"]
 RejectReason = Literal["busy", "format", "budget", "duration", "language"]
 MatchedOn = Literal["date", "format", "budget", "duration", "language", "description"]
-SuggestionKind = Literal["date", "budget", "city"]
+SuggestionKind = Literal["date", "budget", "duration", "city"]
 
 CATALOG_DATE_FROM = date(2026, 9, 23)
 CATALOG_DATE_TO = date(2026, 12, 31)
@@ -163,6 +168,7 @@ class SuggestionOut(BaseModel):
     count: int
     event_date: date | None = None
     budget_kzt: int | None = None
+    duration_hours: int | None = None
     city: City | None = None
 
 
