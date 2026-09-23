@@ -52,27 +52,27 @@ msgstr "В {0} в этой категории всего {1}. Все подхо�
 msgid "в бюджете"
 msgstr "в бюджете"
 
-#: src/routes/results.tsx:61
+#: src/routes/results.tsx:74
 msgid "В других городах эта категория есть, подсказки ниже."
 msgstr "В других городах эта категория есть, подсказки ниже."
 
-#: src/routes/results.tsx:120
+#: src/routes/results.tsx:108
 msgid "В ссылке не хватает параметров поиска"
 msgstr "В ссылке не хватает параметров поиска"
 
-#: src/routes/results.tsx:172
+#: src/routes/results.tsx:161
 msgid "В этом городе нет подрядчиков выбранной категории"
 msgstr "В этом городе нет подрядчиков выбранной категории"
 
-#: src/routes/results.tsx:71
+#: src/routes/results.tsx:84
 msgid "Все варианты дороже {budget} ₸. Подсказка по бюджету ниже."
 msgstr "Все варианты дороже {budget} ₸. Подсказка по бюджету ниже."
 
-#: src/routes/results.tsx:123
+#: src/routes/results.tsx:111
 msgid "Выберите фильтры на главной странице и создайте новую ссылку."
 msgstr "Выберите фильтры на главной странице и создайте новую ссылку."
 
-#: src/routes/results.tsx:105
+#: src/components/ResultsFilters.tsx:42
 msgid "Выбранные фильтры"
 msgstr "Выбранные фильтры"
 
@@ -99,9 +99,9 @@ msgstr "до {0} ₸"
 
 #. placeholder {0}: filters.duration_hours
 #. placeholder {0}: vendor.max_hours
+#: src/components/ResultsFilters.tsx:35
 #: src/components/SearchForm.tsx:209
 #: src/components/VendorCard.tsx:105
-#: src/routes/results.tsx:85
 msgid "до {0} ч"
 msgstr "до {0} ч"
 
@@ -125,7 +125,7 @@ msgstr "Дороже {0} ₸: {1}. Если бюджет гибкий, их мо
 msgid "Заняты {date}: {0}. Соседние даты ниже, в сезон календари закрываются быстро."
 msgstr "Заняты {date}: {0}. Соседние даты ниже, в сезон календари закрываются быстро."
 
-#: src/routes/results.tsx:102
+#: src/components/ResultsFilters.tsx:61
 msgid "Изменить фильтры"
 msgstr "Изменить фильтры"
 
@@ -149,7 +149,7 @@ msgstr "Любая длительность"
 msgid "Любой язык"
 msgstr "Любой язык"
 
-#: src/routes/results.tsx:69
+#: src/routes/results.tsx:82
 msgid "На {date} в этой категории все заняты. Соседние даты ниже."
 msgstr "На {date} в этой категории все заняты. Соседние даты ниже."
 
@@ -192,16 +192,16 @@ msgstr "Не удалось загрузить подрядчиков. Попр�
 msgid "Не удалось загрузить фильтры. Попробуйте ещё раз."
 msgstr "Не удалось загрузить фильтры. Попробуйте ещё раз."
 
-#: src/routes/results.tsx:141
+#: src/routes/results.tsx:129
 msgid "Не удалось подобрать подрядчиков. Проверьте фильтры и попробуйте ещё раз."
 msgstr "Не удалось подобрать подрядчиков. Проверьте фильтры и попробуйте ещё раз."
 
-#: src/routes/results.tsx:73
+#: src/routes/results.tsx:86
 msgid "Никто не ведёт на выбранных языках. Уберите требование к языку."
 msgstr "Никто не ведёт на выбранных языках. Уберите требование к языку."
 
 #. placeholder {0}: filters.duration_hours ?? 0
-#: src/routes/results.tsx:72
+#: src/routes/results.tsx:85
 msgid "Никто не работает {0} ч подряд. Уберите ограничение по часам."
 msgstr "Никто не работает {0} ч подряд. Уберите ограничение по часам."
 
@@ -223,17 +223,17 @@ msgstr "от {0} ₸"
 msgid "Оценочная цена — уточните у подрядчика"
 msgstr "Оценочная цена — уточните у подрядчика"
 
-#: src/routes/results.tsx:173
+#: src/routes/results.tsx:162
 msgid "По этим условиям подрядчиков не нашлось"
 msgstr "По этим условиям подрядчиков не нашлось"
 
 #: src/routes/index.tsx:79
 #: src/routes/index.tsx:109
-#: src/routes/results.tsx:151
+#: src/routes/results.tsx:139
 msgid "Повторить"
 msgstr "Повторить"
 
-#: src/routes/results.tsx:130
+#: src/routes/results.tsx:118
 msgid "Подбираю подрядчиков…"
 msgstr "Подбираю подрядчиков…"
 
@@ -260,7 +260,7 @@ msgstr "подходит по описанию"
 msgid "Подходят {0} из {1} профилей в {2}."
 msgstr "Подходят {0} из {1} профилей в {2}."
 
-#: src/routes/results.tsx:159
+#: src/routes/results.tsx:147
 msgid "Подходящие подрядчики"
 msgstr "Подходящие подрядчики"
 
@@ -277,7 +277,7 @@ msgstr "Попробуйте вернуться позже."
 msgid "Попробуйте другие условия"
 msgstr "Попробуйте другие условия"
 
-#: src/routes/results.tsx:64
+#: src/routes/results.tsx:77
 msgid "Попробуйте изменить дату, бюджет или город."
 msgstr "Попробуйте изменить дату, бюджет или город."
 
@@ -301,7 +301,11 @@ msgstr "свободен на дату"
 msgid "Синтетический профиль"
 msgstr "Синтетический профиль"
 
-#: src/routes/results.tsx:62
+#: src/components/ResultsFilters.tsx:61
+msgid "Скрыть фильтры"
+msgstr "Скрыть фильтры"
+
+#: src/routes/results.tsx:75
 msgid "Такой категории нет ни в одном городе каталога."
 msgstr "Такой категории нет ни в одном городе каталога."
 
@@ -313,7 +317,7 @@ msgstr "убрать требование к языку"
 msgid "Формат"
 msgstr "Формат"
 
-#: src/routes/results.tsx:70
+#: src/routes/results.tsx:83
 msgid "Формат «{format}» здесь никто из этой категории не берёт. Попробуйте другой город."
 msgstr "Формат «{format}» здесь никто из этой категории не берёт. Попробуйте другой город."
 

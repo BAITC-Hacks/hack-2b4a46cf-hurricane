@@ -1,14 +1,17 @@
 import { Trans, useLingui } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, LoaderCircle, SearchX } from "lucide-react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { LoaderCircle, SearchX } from "lucide-react";
+import { useState } from "react";
 
 import { fetchCatalogOptions, fetchRecommendations, type Schemas } from "@/api";
+import { ResultsFilters } from "@/components/ResultsFilters";
+import { SearchForm, type SearchFilters } from "@/components/SearchForm";
 import { SearchHints } from "@/components/SearchHints";
 import { buttonVariants } from "@/components/ui/button";
 import { VendorCard, VendorCardSkeleton } from "@/components/VendorCard";
 import { formatEventDate } from "@/i18n";
-import { getSearchFilters, validateSearchParams } from "@/search-params";
+import { getSearchFilters, getSearchParams, validateSearchParams } from "@/search-params";
 
 type OptionKind = "cities" | "event_formats" | "categories" | "languages";
 type VendorCardOut = Schemas["VendorCardOut"];
@@ -39,8 +42,11 @@ export const Route = createFileRoute("/results")({
 
 function ResultsPage() {
   const { t, i18n } = useLingui();
+  const navigate = useNavigate();
   const search = Route.useSearch();
   const filters = getSearchFilters(search);
+  const formKey = JSON.stringify(search);
+  const [isFormOpen, setIsFormOpen] = useState(false);
   const options = useQuery({ queryKey: ["catalog", "options"], queryFn: fetchCatalogOptions });
   const recommendation = useQuery({
     queryKey: ["recommend", filters],
@@ -48,9 +54,16 @@ function ResultsPage() {
     enabled: filters !== null,
     retry: false,
   });
+  const isEmpty = recommendation.isSuccess && recommendation.data.cards.length === 0;
 
   function getLabel(kind: OptionKind, value: string) {
     return options.data?.[kind].find((option) => option.value === value)?.label ?? value;
+  }
+
+  // Re-search stays on this page: the URL changes in place so browser Back still returns home.
+  function handleSearch(nextFilters: SearchFilters) {
+    setIsFormOpen(false);
+    navigate({ to: "/results", search: getSearchParams(nextFilters), replace: true });
   }
 
   // The empty screen names the blocking condition and the way out, not a generic "try again".
@@ -75,43 +88,18 @@ function ResultsPage() {
     return hints[top.reason];
   }
 
-  const summary = filters
-    ? [
-        getLabel("cities", filters.city),
-        getLabel("event_formats", filters.event_format),
-        getLabel("categories", filters.category),
-        formatEventDate(filters.event_date, i18n.locale),
-        `${new Intl.NumberFormat(i18n.locale).format(filters.budget_kzt)} ₸`,
-        ...(filters.duration_hours ? [t`до ${filters.duration_hours} ч`] : []),
-        ...(filters.languages ?? []).map((language) => getLabel("languages", language)),
-      ]
-    : [];
-
   return (
     <div className="grid gap-6 pb-12">
-      <Link
-        to="/"
-        search={filters ? search : {}}
-        className={buttonVariants({
-          variant: "outline",
-          className:
-            "h-10 w-fit gap-2 px-4 transition active:scale-[0.98] max-md:h-12 max-md:w-full",
-        })}
-      >
-        <ArrowLeft className="size-4" aria-hidden="true" />
-        <Trans>Изменить фильтры</Trans>
-      </Link>
-      {filters && (
-        <ul className="flex flex-wrap gap-1.5" aria-label={t`Выбранные фильтры`}>
-          {summary.map((label) => (
-            <li
-              key={label}
-              className="cursor-default rounded-md bg-muted px-2 py-0.5 text-sm text-foreground select-none"
-            >
-              {label}
-            </li>
-          ))}
-        </ul>
+      {filters && !isEmpty && (
+        <ResultsFilters
+          options={options.data}
+          filters={filters}
+          formKey={formKey}
+          isOpen={isFormOpen}
+          onToggle={() => setIsFormOpen(!isFormOpen)}
+          onSearch={handleSearch}
+          getLabel={getLabel}
+        />
       )}
       {!filters ? (
         <div className="grid justify-items-center gap-3 rounded-lg border border-border bg-card p-8 text-center">
@@ -165,17 +153,28 @@ function ResultsPage() {
               </div>
             </>
           ) : (
-            <div className="grid justify-items-center gap-2 rounded-lg border border-border bg-card p-8 text-center">
-              <SearchX className="size-10 text-muted-foreground" aria-hidden="true" />
-              <h2 className="text-base font-semibold">
-                {recommendation.data.outcome === "no_category_in_city"
-                  ? t`В этом городе нет подрядчиков выбранной категории`
-                  : t`По этим условиям подрядчиков не нашлось`}
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                {getEmptyStateHint(recommendation.data)}
-              </p>
-            </div>
+            <>
+              <div className="grid justify-items-center gap-2 rounded-lg border border-border bg-card p-8 text-center">
+                <SearchX className="size-10 text-muted-foreground" aria-hidden="true" />
+                <h2 className="text-base font-semibold">
+                  {recommendation.data.outcome === "no_category_in_city"
+                    ? t`В этом городе нет подрядчиков выбранной категории`
+                    : t`По этим условиям подрядчиков не нашлось`}
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  {getEmptyStateHint(recommendation.data)}
+                </p>
+              </div>
+              {/* Nothing found: the form is open right here so the fix does not need a page change. */}
+              {options.data && (
+                <SearchForm
+                  key={formKey}
+                  options={options.data}
+                  defaultFilters={filters}
+                  onSearch={handleSearch}
+                />
+              )}
+            </>
           )}
           <SearchHints
             recommendation={recommendation.data}
