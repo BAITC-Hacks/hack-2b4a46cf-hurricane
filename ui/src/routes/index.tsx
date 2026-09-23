@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const Route = createFileRoute("/")({ component: HomePage });
 
+// STUB: the recommendation form lands here once `POST /recommend` exists.
 function HomePage() {
   const [selectedFilters, setSelectedFilters] = useState<SearchFilters | null>(null);
 

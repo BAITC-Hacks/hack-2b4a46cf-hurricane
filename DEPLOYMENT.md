@@ -35,12 +35,25 @@
 2. Добавить **Postgres** (Add → Database → PostgreSQL).
 3. Добавить сервис **app**:
    - Source: Add → **Empty Service**, деплой в него через `railway up` из `app/`. GitHub‑источник не используется, см. выше.
-   - Билдер и healthcheck подхватываются из `app/railway.json` (Dockerfile, `preDeployCommand` с миграциями, `healthcheckPath: /health`).
+   - Билдер, `preDeployCommand` с миграциями и seed, `healthcheckPath: /health` и регион описаны в `.railway/railway.ts` и применяются командой `railway config apply` из корня репо.
    - Variables: `DATABASE_URL` = `${{Postgres.DATABASE_URL}}`, затем в значении заменить `postgresql://` на `postgresql+asyncpg://` (Railway отдаёт psycopg‑формат, SQLAlchemy async нужен asyncpg). Остальные из таблицы README «Переменные окружения»: `OPENAI_API_KEY`, `OPENAI_MODEL`, `CORS_ORIGINS`.
    - Settings → Networking → Generate Domain. Этот URL идёт в README и в `VITE_API_URL` фронта.
    - Если репо подключено: Settings → **Watch Paths** = `app/**`, иначе правки фронта пересобирают бэкенд.
-4. Добавить сервис **ui**: Add → Empty Service, деплой через `railway up` из `ui/`. Билдер и healthcheck из `ui/railway.json`. Variables: `VITE_API_URL` = домен сервиса `app`. Переменная вшивается в бандл при сборке (в Dockerfile объявлена как `ARG`), после её изменения нужен redeploy. Порт nginx берётся из `PORT`, Railway задаёт его сам. Settings → Networking → Generate Domain, если репо подключено: **Watch Paths** = `ui/**`.
+4. Добавить сервис **ui**: Add → Empty Service, деплой через `railway up` из `ui/`. Билдер и healthcheck из `.railway/railway.ts`. Variables: `VITE_API_URL` = домен сервиса `app`. Переменная вшивается в бандл при сборке (в Dockerfile объявлена как `ARG`), после её изменения нужен redeploy. Порт nginx берётся из `PORT`, Railway задаёт его сам. Settings → Networking → Generate Domain, если репо подключено: **Watch Paths** = `ui/**`.
 5. В `CORS_ORIGINS` сервиса `app` вписать домен сервиса `ui` и `http://localhost:5173`.
+
+## Инфраструктура как код
+
+Сервисы, база, том, регион `europe-west4`, сборка, pre-deploy и healthcheck описаны в `.railway/railway.ts`. Значения переменных там не хранятся: `preserve()` оставляет то, что уже задано в Railway. Файл описывает проект целиком, ресурс, удалённый из файла, будет удалён в Railway.
+
+```
+yarn install                                   # один раз, ставит SDK railway в корне
+railway link --project hurricane --environment production   # корень репо, один раз
+railway config plan                            # безопасно, только показывает разницу
+railway config apply                           # применяет, спрашивает подтверждение
+```
+
+Изменения в `railway.ts` применяет капитан, план показывается команде до apply.
 
 ## Привязка CLI (каждый, один раз)
 
@@ -90,7 +103,7 @@ railway open             # открыть сервис в дашборде
 
 - `app/Dockerfile` multi‑stage: слой с зависимостями кэшируется, при правке кода пересобирается только `COPY . .`. Не переставлять строки `COPY pyproject.toml uv.lock` и `COPY . .`.
 - Новая зависимость = инвалидация кэша = плюс 1–2 минуты на билд. Добавлять пачкой, а не по одной.
-- `healthcheckPath` в `railway.json`: трафик переключается на новую версию только после успешного `/health`. Ты не видишь 502 во время деплоя. Не убирать.
+- `healthcheckPath` в `.railway/railway.ts`: трафик переключается на новую версию только после успешного `/health`. Ты не видишь 502 во время деплоя. Не убирать.
 - `preDeployCommand` гоняет миграции до старта нового контейнера. Сломанная миграция = деплой не переключится, старая версия продолжит работать. Смотреть `railway logs --build`.
 
 ## Если что-то пошло не так

@@ -4,15 +4,15 @@
  */
 
 export interface paths {
-  "/health": {
+  "/catalog/options": {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /** Get Health */
-    get: operations["get_health"];
+    /** Get Catalog Options */
+    get: operations["get_catalog_options"];
     put?: never;
     post?: never;
     delete?: never;
@@ -21,7 +21,24 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/ask": {
+  "/vendors": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Vendors */
+    get: operations["get_vendors"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/recommend": {
     parameters: {
       query?: never;
       header?: never;
@@ -30,8 +47,8 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Ask */
-    post: operations["ask"];
+    /** Recommend */
+    post: operations["recommend"];
     delete?: never;
     options?: never;
     head?: never;
@@ -42,25 +59,136 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
-    /** AskIn */
-    AskIn: {
-      /** Prompt */
-      prompt: string;
+    /** CatalogOptionsOut */
+    CatalogOptionsOut: {
+      /** Cities */
+      cities: components["schemas"]["OptionOut"][];
+      /** Categories */
+      categories: components["schemas"]["OptionOut"][];
+      /** Event Formats */
+      event_formats: components["schemas"]["OptionOut"][];
+      /** Languages */
+      languages: components["schemas"]["OptionOut"][];
+      /**
+       * Date From
+       * Format: date
+       */
+      date_from: string;
+      /**
+       * Date To
+       * Format: date
+       */
+      date_to: string;
     };
-    /** AskOut */
-    AskOut: {
-      /** Answer */
-      answer: string;
-    };
+    /**
+     * Category
+     * @enum {string}
+     */
+    Category:
+      | "host"
+      | "ceremony-host"
+      | "photographer"
+      | "videographer"
+      | "photo-booth"
+      | "florist"
+      | "decorator"
+      | "gifts"
+      | "live-band"
+      | "instrumentalist"
+      | "national-ensemble"
+      | "dance-group"
+      | "show"
+      | "banquet-hall"
+      | "restaurant"
+      | "hotel"
+      | "country-venue";
+    /**
+     * City
+     * @enum {string}
+     */
+    City: "almaty" | "astana" | "abroad";
+    /**
+     * EventFormat
+     * @enum {string}
+     */
+    EventFormat: "wedding" | "toi" | "corporate" | "conference" | "anniversary" | "birthday";
     /** HTTPValidationError */
     HTTPValidationError: {
       /** Detail */
       detail?: components["schemas"]["ValidationError"][];
     };
-    /** HealthOut */
-    HealthOut: {
-      /** Status */
-      status: string;
+    /**
+     * Language
+     * @enum {string}
+     */
+    Language: "ru" | "kk" | "en";
+    /** OptionOut */
+    OptionOut: {
+      /** Value */
+      value: string;
+      /** Label */
+      label: string;
+    };
+    /** RecommendIn */
+    RecommendIn: {
+      city: components["schemas"]["City"];
+      /**
+       * Event Date
+       * Format: date
+       */
+      event_date: string;
+      event_format: components["schemas"]["EventFormat"];
+      category: components["schemas"]["Category"];
+      /** Budget Kzt */
+      budget_kzt: number;
+      /** Duration Hours */
+      duration_hours?: number | null;
+      /** Languages */
+      languages?: components["schemas"]["Language"][];
+    };
+    /** RecommendOut */
+    RecommendOut: {
+      /**
+       * Outcome
+       * @enum {string}
+       */
+      outcome: "matched" | "no_category_in_city" | "no_candidates_pass";
+      /** Cards */
+      cards: components["schemas"]["VendorCardOut"][];
+      /** Pool Size */
+      pool_size: number;
+      /** Rejections */
+      rejections: components["schemas"]["RejectionOut"][];
+      /** Suggestions */
+      suggestions: components["schemas"]["SuggestionOut"][];
+    };
+    /** RejectionOut */
+    RejectionOut: {
+      /**
+       * Reason
+       * @enum {string}
+       */
+      reason: "busy" | "format" | "budget" | "duration" | "language";
+      /** Count */
+      count: number;
+    };
+    /**
+     * SuggestionOut
+     * @description A relaxed query that would return more vendors. The frontend can rerun it in one click.
+     */
+    SuggestionOut: {
+      /**
+       * Kind
+       * @enum {string}
+       */
+      kind: "date" | "budget" | "city";
+      /** Count */
+      count: number;
+      /** Event Date */
+      event_date?: string | null;
+      /** Budget Kzt */
+      budget_kzt?: number | null;
+      city?: components["schemas"]["City"] | null;
     };
     /** ValidationError */
     ValidationError: {
@@ -75,6 +203,68 @@ export interface components {
       /** Context */
       ctx?: Record<string, never>;
     };
+    /** VendorCardOut */
+    VendorCardOut: {
+      /** Id */
+      id: string;
+      /** Name */
+      name: string;
+      /** Categories */
+      categories: components["schemas"]["OptionOut"][];
+      city: components["schemas"]["OptionOut"];
+      /** Price From Kzt */
+      price_from_kzt: number;
+      /** Languages */
+      languages: components["schemas"]["OptionOut"][];
+      /** Max Hours */
+      max_hours: number | null;
+      /**
+       * Role
+       * @enum {string}
+       */
+      role: "best_match" | "best_price" | "premium" | "alternative";
+      /** Explanation */
+      explanation: string;
+      /**
+       * Explanation Source
+       * @enum {string}
+       */
+      explanation_source: "llm" | "template";
+      /** Matched On */
+      matched_on: ("date" | "format" | "budget" | "duration" | "language" | "description")[];
+      /** Synthetic */
+      synthetic: boolean;
+      /** Price Imputed */
+      price_imputed: boolean;
+      /** City Imputed */
+      city_imputed: boolean;
+    };
+    /** VendorOut */
+    VendorOut: {
+      /** Id */
+      id: string;
+      /** Name */
+      name: string;
+      /** Categories */
+      categories: components["schemas"]["OptionOut"][];
+      city: components["schemas"]["OptionOut"];
+      /** Price From Kzt */
+      price_from_kzt: number;
+      /** Event Formats */
+      event_formats: components["schemas"]["OptionOut"][];
+      /** Languages */
+      languages: components["schemas"]["OptionOut"][];
+      /** Max Hours */
+      max_hours: number | null;
+      /** Description */
+      description: string;
+      /** Synthetic */
+      synthetic: boolean;
+      /** Price Imputed */
+      price_imputed: boolean;
+      /** City Imputed */
+      city_imputed: boolean;
+    };
   };
   responses: never;
   parameters: never;
@@ -84,7 +274,7 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-  get_health: {
+  get_catalog_options: {
     parameters: {
       query?: never;
       header?: never;
@@ -99,12 +289,32 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["HealthOut"];
+          "application/json": components["schemas"]["CatalogOptionsOut"];
         };
       };
     };
   };
-  ask: {
+  get_vendors: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["VendorOut"][];
+        };
+      };
+    };
+  };
+  recommend: {
     parameters: {
       query?: never;
       header?: never;
@@ -113,7 +323,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["AskIn"];
+        "application/json": components["schemas"]["RecommendIn"];
       };
     };
     responses: {
@@ -123,7 +333,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["AskOut"];
+          "application/json": components["schemas"]["RecommendOut"];
         };
       };
       /** @description Validation Error */

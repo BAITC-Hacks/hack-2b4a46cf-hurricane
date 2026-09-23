@@ -51,7 +51,6 @@ yarn-error.log*
 # ---------- docker / infra ----------
 docker-compose.override.yml
 compose.override.yaml
-.railway/
 
 # ---------- editors / os ----------
 .idea/
