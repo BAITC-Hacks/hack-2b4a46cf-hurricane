@@ -66,12 +66,16 @@ def get_distinctions(pick: Pick, picks: list[Pick]) -> list[str]:
     unique_languages = set(vendor.languages) - {lang for o in others for lang in o.languages}
     if unique_languages:
         distinctions.append(
-            "единственный из показанных работает на: "
+            "единственный из показанных работает на языках: "
             + get_language_labels(sorted(unique_languages))
+            + ", гости на этом языке не выпадут из программы"
         )
     other_hours = [o.max_hours for o in others if o.max_hours is not None]
     if vendor.max_hours is not None and other_hours and vendor.max_hours > max(other_hours):
-        distinctions.append(f"больше всех из показанных часов на площадке: до {vendor.max_hours} ч")
+        distinctions.append(
+            f"больше всех из показанных часов на площадке: до {vendor.max_hours} ч, "
+            "хватит даже если программа затянется"
+        )
     return distinctions
 
 
@@ -80,10 +84,11 @@ def get_pick_facts(
 ) -> list[str]:
     vendor = pick.vendor
     share = round(vendor.price_from_kzt * 100 / order.budget_kzt)
+    remainder = format_kzt(order.budget_kzt - vendor.price_from_kzt)
     facts = [
         ROLE_FACTS[pick.role],
         f"цена от {format_kzt(vendor.price_from_kzt)}, "
-        f"это {share}% бюджета {format_kzt(order.budget_kzt)}",
+        f"это {share}% бюджета {format_kzt(order.budget_kzt)}, остаётся {remainder} на остальное",
         f"свободен {order.event_date:%d.%m.%Y}",
         f"берёт формат «{order.event_format.label}»"
         + ("; в описании прямо упоминает этот формат" if "description" in pick.matched_on else ""),
@@ -105,44 +110,62 @@ def get_pick_facts(
     return facts
 
 
+def get_template_second_sentence(
+    pick: Pick, picks: list[Pick], order: RecommendIn, busy: int, pool: int
+) -> str:
+    vendor = pick.vendor
+    day = f"{order.event_date:%d.%m}"
+    if pick is picks[0]:
+        if not busy:
+            return f"Свободен {day}, как и вся категория на эту дату: можно выбирать спокойно."
+        return (
+            f"Свободен {day}, а {busy} из {pool} в категории уже заняты: с датой лучше не тянуть."
+        )
+    distinctions = get_distinctions(pick, picks)
+    if distinctions:
+        return distinctions[0][0].upper() + distinctions[0][1:] + "."
+    if vendor.max_hours is None:
+        return "Работа не привязана к часам на площадке: переработку считать не придётся."
+    if order.duration_hours:
+        return (
+            f"Готов работать до {vendor.max_hours} ч, "
+            f"заказ на {order.duration_hours} ч укладывается."
+        )
+    return f"Готов работать до {vendor.max_hours} ч, хватит и на затянувшуюся программу."
+
+
 def get_template_explanation(
     pick: Pick, picks: list[Pick], order: RecommendIn, busy: int, pool: int
 ) -> str:
     vendor = pick.vendor
-    price, share = (
-        format_kzt(vendor.price_from_kzt),
-        round(vendor.price_from_kzt * 100 / order.budget_kzt),
-    )
+    price, budget = format_kzt(vendor.price_from_kzt), format_kzt(order.budget_kzt)
+    remainder = format_kzt(order.budget_kzt - vendor.price_from_kzt)
     matches = [f"берёт формат «{order.event_format.label}»"]
     if "description" in pick.matched_on:
-        matches.append("упоминает этот формат в описании")
+        matches.append("сам пишет о нём в описании")
     if order.languages:
-        matches.append(f"работает на языках: {get_language_labels(order.languages)}")
+        matches.append(f"работает на нужных языках: {get_language_labels(order.languages)}")
     lead = {
-        "best_price": f"Самая низкая цена среди свободных: от {price}, это {share}% бюджета.",
-        "premium": f"Самый дорогой вариант в пределах бюджета: от {price} "
-        f"из {format_kzt(order.budget_kzt)}.",
-        "best_match": f"Больше всего совпадений с заказом: {', '.join(matches)}, от {price}.",
-        "alternative": f"Проходит все условия заказа, от {price}, это {share}% бюджета.",
+        "best_price": f"Самый бережный к бюджету: от {price}, остаётся {remainder} на остальное.",
+        "premium": f"Если хочется размаха: самый дорогой из тех, кто укладывается в {budget}, "
+        f"от {price}, запас всего {remainder}.",
+        "best_match": f"Точнее всех попадает в заказ: {', '.join(matches)}. "
+        f"От {price}, остаётся {remainder} на остальное.",
+        "alternative": f"Запасной вариант, если первые не ответят: от {price}, "
+        f"остаётся {remainder} на остальное.",
     }[pick.role]
-    distinctions = get_distinctions(pick, picks)
-    if pick is picks[0] or not distinctions:
-        second = (
-            f"Свободен {order.event_date:%d.%m}, "
-            f"хотя {busy} из {pool} в категории на эту дату заняты."
-        )
-        if not busy:
-            second = f"Свободен {order.event_date:%d.%m}."
-    else:
-        second = distinctions[0][0].upper() + distinctions[0][1:] + "."
-    note = " Цена оценочная." if vendor.price_imputed else ""
-    return f"{lead} {second}{note}"
+    note = " Цена ориентировочная, уточняйте." if vendor.price_imputed else ""
+    return f"{lead} {get_template_second_sentence(pick, picks, order, busy, pool)}{note}"
 
 
-def is_valid_explanation(text: object) -> bool:
+def is_valid_explanation(text: object, vendor: Vendor) -> bool:
     if not isinstance(text, str) or not 20 <= len(text) <= 400:
         return False
-    return not any(phrase in text.lower() for phrase in BANNED_PHRASES)
+    lower = text.lower()
+    # The LLM likes to add "estimated price" on its own: a fact absent from the catalog is a lie.
+    if not vendor.price_imputed and ("ориентиров" in lower or "оценочн" in lower):
+        return False
+    return not any(phrase in lower for phrase in BANNED_PHRASES)
 
 
 async def fetch_llm_explanations(
@@ -174,8 +197,8 @@ async def build_cards(
     cards = []
     for pick in picks:
         text = llm_texts.get(pick.vendor.id)
-        is_llm = is_valid_explanation(text)
         vendor = pick.vendor
+        is_llm = is_valid_explanation(text, vendor)
         cards.append(
             VendorCardOut(
                 id=vendor.id,
