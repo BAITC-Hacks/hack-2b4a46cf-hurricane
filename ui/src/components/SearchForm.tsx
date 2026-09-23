@@ -67,7 +67,7 @@ function FilterSelect({
   const items = anyLabel ? [{ value: "any", label: anyLabel }, ...options] : options;
 
   return (
-    <label className="grid min-w-0 gap-2 text-sm font-medium">
+    <label className="grid min-w-0 content-start gap-2 text-sm font-medium">
       {label}
       <Combobox
         items={items}
@@ -121,7 +121,7 @@ export function SearchForm({
               options={options.cities}
               onChange={(city) => setFilters({ ...filters, city: city as SearchFilters["city"] })}
             />
-            <label className="grid min-w-0 gap-2 text-sm font-medium">
+            <label className="grid min-w-0 content-start gap-2 text-sm font-medium">
               <Trans>Дата</Trans>
               <input
                 type="date"
@@ -152,7 +152,7 @@ export function SearchForm({
                 setFilters({ ...filters, category: category as SearchFilters["category"] })
               }
             />
-            <div className="grid content-start gap-2">
+            <div className="col-span-2 grid content-start gap-2 max-md:col-span-1">
               <label className="grid min-w-0 gap-2 text-sm font-medium">
                 <Trans>Бюджет, ₸</Trans>
                 <input
