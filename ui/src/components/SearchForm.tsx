@@ -103,10 +103,12 @@ export function SearchForm({
   options,
   defaultFilters,
   onSearch,
+  onReset,
 }: {
   options: CatalogOptions;
   defaultFilters: SearchFilters | null;
   onSearch: (filters: SearchFilters) => void;
+  onReset?: () => void;
 }) {
   const { t, i18n } = useLingui();
   const kzt = new Intl.NumberFormat(i18n.locale);
@@ -118,6 +120,11 @@ export function SearchForm({
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     onSearch(filters);
+  }
+
+  function handleReset() {
+    setFilters(getInitialFilters(options));
+    onReset?.();
   }
 
   return (
@@ -241,7 +248,7 @@ export function SearchForm({
               type="button"
               variant="outline"
               size="lg"
-              onClick={() => setFilters(getInitialFilters(options))}
+              onClick={handleReset}
               className="h-10 px-6 max-md:h-11 max-md:w-full"
             >
               <RotateCcw className="size-4" />

@@ -62,6 +62,11 @@ function HomePage() {
     navigate({ to: "/results", search });
   }
 
+  // Reset clears the saved draft from the URL too, otherwise reload or Back brings the old filters back.
+  function handleReset() {
+    navigate({ to: "/", search: {}, replace: true });
+  }
+
   return (
     <div className="grid gap-8 pb-12">
       {options.isPending ? (
@@ -84,6 +89,7 @@ function HomePage() {
           options={options.data}
           defaultFilters={defaultFilters}
           onSearch={handleSearch}
+          onReset={handleReset}
         />
       )}
       <section className="grid gap-4" aria-live="polite">
