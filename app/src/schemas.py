@@ -170,5 +170,6 @@ class RecommendOut(BaseModel):
     outcome: Outcome
     cards: list[VendorCardOut]
     pool_size: int
+    passed_count: int
     rejections: list[RejectionOut]
     suggestions: list[SuggestionOut]

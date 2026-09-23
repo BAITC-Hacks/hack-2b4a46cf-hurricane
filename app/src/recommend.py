@@ -72,7 +72,7 @@ def get_match_score(vendor: Vendor, order: RecommendIn) -> int:
 
 def get_matched_on(vendor: Vendor, order: RecommendIn) -> list[MatchedOn]:
     matched: list[MatchedOn] = ["date", "format", "budget"]
-    if order.duration_hours:
+    if order.duration_hours and vendor.max_hours is not None:
         matched.append("duration")
     if order.languages:
         matched.append("language")
@@ -174,6 +174,7 @@ async def recommend(
             outcome="no_category_in_city",
             cards=[],
             pool_size=0,
+            passed_count=0,
             rejections=[],
             suggestions=suggestions,
         )
@@ -182,12 +183,12 @@ async def recommend(
     if len(passed) < 3:
         suggestions = get_date_suggestions(pool, order, len(passed))
         suggestions += get_budget_suggestion(pool, order, len(passed))
-    busy_count = sum(1 for vendor in pool if order.event_date in vendor.busy_dates)
-    cards = await build_cards(pick_role_vendors(passed, order), order, busy_count, len(pool))
+    cards = await build_cards(pick_role_vendors(passed, order), order)
     return RecommendOut(
         outcome="matched" if cards else "no_candidates_pass",
         cards=cards,
         pool_size=len(pool),
+        passed_count=len(passed),
         rejections=get_rejections(pool, order),
         suggestions=suggestions,
     )

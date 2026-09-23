@@ -157,6 +157,8 @@ export interface components {
       cards: components["schemas"]["VendorCardOut"][];
       /** Pool Size */
       pool_size: number;
+      /** Passed Count */
+      passed_count: number;
       /** Rejections */
       rejections: components["schemas"]["RejectionOut"][];
       /** Suggestions */

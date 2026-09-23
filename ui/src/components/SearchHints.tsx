@@ -45,20 +45,17 @@ export function SearchHints({
   const languages = (filters.languages ?? []).map((value) => getLabel("languages", value));
   const format = getLabel("event_formats", filters.event_format);
 
-  // Each reason says what it means for this order and what to do next, not only the count.
   const reasons: Record<Schemas["RejectionOut"]["reason"], (count: number) => string> = {
-    busy: (count) =>
-      t`Заняты ${date}: ${getVendorCount(count)}. Соседние даты ниже, в сезон календари закрываются быстро.`,
-    format: (count) =>
-      t`Не берут формат «${format}»: ${getVendorCount(count)}. Это условие не смягчить, оно про сам формат события.`,
+    busy: (count) => t`Заняты ${date}: ${getVendorCount(count)}.`,
+    format: (count) => t`Не берут формат «${format}»: ${getVendorCount(count)}.`,
     budget: (count) =>
-      t`Дороже ${money.format(filters.budget_kzt)} ₸: ${getVendorCount(count)}. Если бюджет гибкий, их можно вернуть.`,
+      t`Цена от выше ${money.format(filters.budget_kzt)} ₸: ${getVendorCount(count)}.`,
     duration: (count) =>
-      t`Не работают ${filters.duration_hours ?? 0} ч подряд: ${getVendorCount(count)}. Короче программа, шире выбор.`,
+      t`Указанный предел работы меньше ${filters.duration_hours ?? 0} ч: ${getVendorCount(count)}.`,
     language: (count) => t`Не ведут на языках ${languages.join(", ")}: ${getVendorCount(count)}.`,
   };
 
-  const rejected = recommendation.rejections.reduce((sum, rejection) => sum + rejection.count, 0);
+  const shouldShowCount = recommendation.pool_size > 0 && recommendation.passed_count < 3;
   const hints: Hint[] = recommendation.suggestions.map((suggestion, index) => {
     const found = t`найдётся ${getVendorCount(suggestion.count)}`;
     if (suggestion.kind === "date" && suggestion.event_date)
@@ -107,18 +104,20 @@ export function SearchHints({
 
   return (
     <>
-      {rejected > 0 && (
+      {shouldShowCount && (
         <section className="grid gap-3 rounded-lg border border-border bg-card p-5 max-md:p-4">
           <h2 className="text-base font-semibold">
-            <Trans>
-              Подошли {recommendation.cards.length} из {recommendation.pool_size}
-            </Trans>
+            {recommendation.passed_count === recommendation.pool_size
+              ? t`В ${getLabel("cities", filters.city)} в этой категории всего ${getVendorCount(recommendation.pool_size)}. Все подходят.`
+              : t`Подходят ${recommendation.passed_count} из ${recommendation.pool_size} профилей в ${getLabel("cities", filters.city)}.`}
           </h2>
-          <ul className="grid gap-2 text-sm leading-6 text-muted-foreground">
-            {recommendation.rejections.map(({ reason, count }) => (
-              <li key={reason}>{reasons[reason](count)}</li>
-            ))}
-          </ul>
+          {recommendation.rejections.length > 0 && (
+            <ul className="grid gap-2 text-sm leading-6 text-muted-foreground">
+              {recommendation.rejections.map(({ reason, count }) => (
+                <li key={reason}>{reasons[reason](count)}</li>
+              ))}
+            </ul>
+          )}
         </section>
       )}
       {hints.length > 0 && (

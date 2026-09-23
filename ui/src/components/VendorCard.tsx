@@ -50,7 +50,7 @@ export function VendorCard({ vendor }: { vendor: Vendor }) {
     date: t`свободен на дату`,
     format: t`берёт формат`,
     budget: t`в бюджете`,
-    duration: t`хватит часов`,
+    duration: t`длительность подходит`,
     language: t`нужный язык`,
     description: t`подходит по описанию`,
   };
@@ -81,9 +81,16 @@ export function VendorCard({ vendor }: { vendor: Vendor }) {
           ) : (
             <span />
           )}
-          <p className="text-right text-lg leading-6 font-semibold tabular-nums whitespace-nowrap">
-            <Trans>от {new Intl.NumberFormat(i18n.locale).format(vendor.price_from_kzt)} ₸</Trans>
-          </p>
+          <div className="text-right">
+            <p className="text-lg leading-6 font-semibold tabular-nums whitespace-nowrap">
+              <Trans>от {new Intl.NumberFormat(i18n.locale).format(vendor.price_from_kzt)} ₸</Trans>
+            </p>
+            {vendor.price_imputed && (
+              <p className="max-w-44 text-xs leading-4 text-muted-foreground">
+                <Trans>Оценочная цена — уточните у подрядчика</Trans>
+              </p>
+            )}
+          </div>
         </div>
         <CardTitle className="text-lg leading-6 font-semibold">{vendor.name}</CardTitle>
         <div className="flex flex-wrap gap-1.5">
@@ -135,11 +142,6 @@ export function VendorCard({ vendor }: { vendor: Vendor }) {
           ) : (
             <span className="rounded-full border border-border px-2 py-0.5">
               <Trans>Профиль из каталога</Trans>
-            </span>
-          )}
-          {vendor.price_imputed && (
-            <span className="rounded-full border border-border px-2 py-0.5">
-              <Trans>цена оценочная</Trans>
             </span>
           )}
         </div>

@@ -25,7 +25,7 @@ msgstr "EventMatch"
 msgid "Альтернатива"
 msgstr "Alternative"
 
-#: src/components/VendorCard.tsx:91
+#: src/components/VendorCard.tsx:105
 msgid "без привязки к часам"
 msgstr "not tied to hours"
 
@@ -34,7 +34,7 @@ msgid "берёт формат"
 msgstr "takes this format"
 
 #. placeholder {0}: money.format(suggestion.budget_kzt)
-#: src/components/SearchHints.tsx:76
+#: src/components/SearchHints.tsx:73
 msgid "Бюджет {0} ₸"
 msgstr "Budget {0} ₸"
 
@@ -42,23 +42,29 @@ msgstr "Budget {0} ₸"
 msgid "Бюджет, ₸"
 msgstr "Budget, ₸"
 
+#. placeholder {0}: getLabel("cities", filters.city)
+#. placeholder {1}: getVendorCount(recommendation.pool_size)
+#: src/components/SearchHints.tsx:111
+msgid "В {0} в этой категории всего {1}. Все подходят."
+msgstr "In {0}, this category has only {1}. All match."
+
 #: src/components/VendorCard.tsx:52
 msgid "в бюджете"
 msgstr "within budget"
 
-#: src/routes/results.tsx:78
+#: src/routes/results.tsx:98
 msgid "В ссылке не хватает параметров поиска"
 msgstr "The link is missing search parameters"
 
-#: src/routes/results.tsx:130
+#: src/routes/results.tsx:150
 msgid "В этом городе нет подрядчиков выбранной категории"
 msgstr "There are no vendors of this category in this city"
 
-#: src/routes/results.tsx:81
+#: src/routes/results.tsx:101
 msgid "Выберите фильтры на главной странице и создайте новую ссылку."
 msgstr "Choose filters on the home page and create a new link."
 
-#: src/routes/results.tsx:63
+#: src/routes/results.tsx:83
 msgid "Выбранные фильтры"
 msgstr "Selected filters"
 
@@ -74,6 +80,10 @@ msgstr "Date"
 msgid "Длительность"
 msgstr "Duration"
 
+#: src/components/VendorCard.tsx:53
+msgid "длительность подходит"
+msgstr "duration matches"
+
 #. placeholder {0}: compactKzt.format(amount)
 #: src/components/SearchForm.tsx:185
 msgid "до {0} ₸"
@@ -82,8 +92,8 @@ msgstr "up to {0} ₸"
 #. placeholder {0}: filters.duration_hours
 #. placeholder {0}: vendor.max_hours
 #: src/components/SearchForm.tsx:202
-#: src/components/VendorCard.tsx:91
-#: src/routes/results.tsx:43
+#: src/components/VendorCard.tsx:105
+#: src/routes/results.tsx:63
 msgid "до {0} ч"
 msgstr "up to {0} h"
 
@@ -91,18 +101,12 @@ msgstr "up to {0} h"
 msgid "Дополнительные условия"
 msgstr "More conditions"
 
-#. placeholder {0}: money.format(filters.budget_kzt)
-#. placeholder {1}: getVendorCount(count)
-#: src/components/SearchHints.tsx:55
-msgid "Дороже {0} ₸: {1}. Если бюджет гибкий, их можно вернуть."
-msgstr "Over {0} ₸: {1}. If the budget is flexible, you can bring them back."
-
 #. placeholder {0}: getVendorCount(count)
-#: src/components/SearchHints.tsx:51
-msgid "Заняты {date}: {0}. Соседние даты ниже, в сезон календари закрываются быстро."
-msgstr "Busy on {date}: {0}. Nearby dates are below, calendars fill up fast in season."
+#: src/components/SearchHints.tsx:49
+msgid "Заняты {date}: {0}."
+msgstr "Busy on {date}: {0}."
 
-#: src/routes/results.tsx:60
+#: src/routes/results.tsx:80
 msgid "Изменить фильтры"
 msgstr "Change filters"
 
@@ -118,23 +122,23 @@ msgstr "Best price"
 msgid "Лучшее совпадение"
 msgstr "Best match"
 
-#: src/components/SearchHints.tsx:102
+#: src/components/SearchHints.tsx:99
 msgid "Любая длительность"
 msgstr "Any duration"
 
-#: src/components/SearchHints.tsx:93
+#: src/components/SearchHints.tsx:90
 msgid "Любой язык"
 msgstr "Any language"
 
 #. placeholder {0}: getVendorCount(suggestion.count)
-#: src/components/SearchHints.tsx:63
+#: src/components/SearchHints.tsx:60
 msgid "найдётся {0}"
 msgstr "{0} available"
 
 #. placeholder {0}: getVendorCount(count)
-#: src/components/SearchHints.tsx:53
-msgid "Не берут формат «{format}»: {0}. Это условие не смягчить, оно про сам формат события."
-msgstr "Don't take the “{format}” format: {0}. This can't be relaxed, it's about the event itself."
+#: src/components/SearchHints.tsx:50
+msgid "Не берут формат «{format}»: {0}."
+msgstr "Do not take the “{format}” format: {0}."
 
 #: src/components/SearchForm.tsx:202
 #: src/components/SearchForm.tsx:221
@@ -143,19 +147,13 @@ msgstr "Any"
 
 #. placeholder {0}: languages.join(", ")
 #. placeholder {1}: getVendorCount(count)
-#: src/components/SearchHints.tsx:58
+#: src/components/SearchHints.tsx:55
 msgid "Не ведут на языках {0}: {1}."
 msgstr "Don't work in {0}: {1}."
 
-#: src/components/SearchHints.tsx:103
+#: src/components/SearchHints.tsx:100
 msgid "не ограничивать часы"
 msgstr "don't limit hours"
-
-#. placeholder {0}: filters.duration_hours ?? 0
-#. placeholder {1}: getVendorCount(count)
-#: src/components/SearchHints.tsx:57
-msgid "Не работают {0} ч подряд: {1}. Короче программа, шире выбор."
-msgstr "Can't work {0} h in a row: {1}. A shorter program means more choice."
 
 #: src/routes/index.tsx:102
 msgid "Не удалось загрузить подрядчиков. Попробуйте ещё раз."
@@ -165,7 +163,7 @@ msgstr "Couldn't load vendors. Try again."
 msgid "Не удалось загрузить фильтры. Попробуйте ещё раз."
 msgstr "Couldn't load filters. Try again."
 
-#: src/routes/results.tsx:99
+#: src/routes/results.tsx:119
 msgid "Не удалось подобрать подрядчиков. Проверьте фильтры и попробуйте ещё раз."
 msgstr "Couldn't match vendors. Check the filters and try again."
 
@@ -179,33 +177,31 @@ msgid "нужный язык"
 msgstr "right language"
 
 #. placeholder {0}: new Intl.NumberFormat(i18n.locale).format(vendor.price_from_kzt)
-#: src/components/VendorCard.tsx:78
+#: src/components/VendorCard.tsx:86
 msgid "от {0} ₸"
 msgstr "from {0} ₸"
 
-#: src/routes/results.tsx:131
+#: src/components/VendorCard.tsx:90
+msgid "Оценочная цена — уточните у подрядчика"
+msgstr "Estimated price — confirm with the vendor"
+
+#: src/routes/results.tsx:151
 msgid "По этим условиям подрядчиков не нашлось"
 msgstr "No vendors match these conditions"
 
 #: src/routes/index.tsx:79
 #: src/routes/index.tsx:109
-#: src/routes/results.tsx:109
+#: src/routes/results.tsx:129
 msgid "Повторить"
 msgstr "Retry"
 
-#: src/routes/results.tsx:88
+#: src/routes/results.tsx:108
 msgid "Подбираю подрядчиков…"
 msgstr "Matching vendors…"
 
 #: src/components/SearchForm.tsx:231
 msgid "Подобрать"
 msgstr "Match"
-
-#. placeholder {0}: recommendation.cards.length
-#. placeholder {1}: recommendation.pool_size
-#: src/components/SearchHints.tsx:113
-msgid "Подошли {0} из {1}"
-msgstr "{0} of {1} matched"
 
 #: src/routes/index.tsx:91
 msgid "Подрядчики"
@@ -219,7 +215,14 @@ msgstr "No vendors yet"
 msgid "подходит по описанию"
 msgstr "fits by description"
 
-#: src/routes/results.tsx:117
+#. placeholder {0}: recommendation.passed_count
+#. placeholder {1}: recommendation.pool_size
+#. placeholder {2}: getLabel("cities", filters.city)
+#: src/components/SearchHints.tsx:112
+msgid "Подходят {0} из {1} профилей в {2}."
+msgstr "{0} of {1} profiles in {2} match."
+
+#: src/routes/results.tsx:137
 msgid "Подходящие подрядчики"
 msgstr "Matching vendors"
 
@@ -232,11 +235,11 @@ msgstr "Show all vendors ({0})"
 msgid "Попробуйте вернуться позже."
 msgstr "Try coming back later."
 
-#: src/components/SearchHints.tsx:127
+#: src/components/SearchHints.tsx:126
 msgid "Попробуйте другие условия"
 msgstr "Try other conditions"
 
-#: src/routes/results.tsx:134
+#: src/routes/results.tsx:154
 msgid "Попробуйте изменить дату, бюджет или город."
 msgstr "Try changing the date, budget or city."
 
@@ -244,7 +247,7 @@ msgstr "Try changing the date, budget or city."
 msgid "Премиум"
 msgstr "Premium"
 
-#: src/components/VendorCard.tsx:130
+#: src/components/VendorCard.tsx:144
 msgid "Профиль из каталога"
 msgstr "Catalog profile"
 
@@ -256,27 +259,31 @@ msgstr "Reset filters"
 msgid "свободен на дату"
 msgstr "free on the date"
 
-#: src/components/VendorCard.tsx:126
+#: src/components/VendorCard.tsx:140
 msgid "Синтетический профиль"
 msgstr "Synthetic profile"
 
-#: src/components/SearchHints.tsx:94
+#: src/components/SearchHints.tsx:91
 msgid "убрать требование к языку"
 msgstr "drop the language requirement"
+
+#. placeholder {0}: filters.duration_hours ?? 0
+#. placeholder {1}: getVendorCount(count)
+#: src/components/SearchHints.tsx:54
+msgid "Указанный предел работы меньше {0} ч: {1}."
+msgstr "Listed working limit is under {0} h: {1}."
 
 #: src/components/SearchForm.tsx:139
 msgid "Формат"
 msgstr "Format"
 
-#: src/components/VendorCard.tsx:53
-msgid "хватит часов"
-msgstr "enough hours"
+#. placeholder {0}: money.format(filters.budget_kzt)
+#. placeholder {1}: getVendorCount(count)
+#: src/components/SearchHints.tsx:52
+msgid "Цена от выше {0} ₸: {1}."
+msgstr "Starting price is above {0} ₸: {1}."
 
-#: src/components/VendorCard.tsx:135
-msgid "цена оценочная"
-msgstr "estimated price"
-
-#: src/components/VendorCard.tsx:102
+#: src/components/VendorCard.tsx:116
 msgid "Что совпало с заказом"
 msgstr "What matched the order"
 
