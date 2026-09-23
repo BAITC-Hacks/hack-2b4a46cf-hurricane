@@ -94,14 +94,18 @@ function FilterSelect({
 
 export function SearchForm({
   options,
+  defaultFilters,
   onSearch,
 }: {
   options: CatalogOptions;
+  defaultFilters: SearchFilters | null;
   onSearch: (filters: SearchFilters) => void;
 }) {
   const { t, i18n } = useLingui();
   const compactKzt = new Intl.NumberFormat(i18n.locale, { notation: "compact" });
-  const [filters, setFilters] = useState<SearchFilters>(() => getInitialFilters(options));
+  const [filters, setFilters] = useState<SearchFilters>(
+    () => defaultFilters ?? getInitialFilters(options),
+  );
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

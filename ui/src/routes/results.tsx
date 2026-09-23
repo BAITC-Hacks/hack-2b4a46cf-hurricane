@@ -4,61 +4,43 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, LoaderCircle, SearchX } from "lucide-react";
 
 import { fetchCatalogOptions, fetchRecommendations, type Schemas } from "@/api";
+import { SearchHints } from "@/components/SearchHints";
 import { buttonVariants } from "@/components/ui/button";
-import { VendorCard } from "@/components/VendorCard";
+import { VendorCard, VendorCardSkeleton } from "@/components/VendorCard";
+import { formatEventDate } from "@/i18n";
+import { getSearchFilters, validateSearchParams } from "@/search-params";
 
-type SearchFilters = Schemas["RecommendIn"];
+type OptionKind = "cities" | "event_formats" | "categories" | "languages";
+type VendorCardOut = Schemas["VendorCardOut"];
 
-function validateSearch(search: Record<string, unknown>) {
-  return {
-    city: typeof search.city === "string" ? search.city.trim() : "",
-    event_date: typeof search.event_date === "string" ? search.event_date.trim() : "",
-    event_format: typeof search.event_format === "string" ? search.event_format.trim() : "",
-    category: typeof search.category === "string" ? search.category.trim() : "",
-    budget_kzt: Number(search.budget_kzt),
-    ...(search.duration_hours ? { duration_hours: Number(search.duration_hours) } : {}),
-    ...(typeof search.languages === "string" && search.languages
-      ? { languages: search.languages.trim() }
-      : {}),
-  };
+// Pricing-page order: cheapest on the left, the highlighted pick in the middle, premium on the right.
+const roleOrder: Record<VendorCardOut["role"], number> = {
+  best_price: 0,
+  best_match: 1,
+  alternative: 2,
+  premium: 3,
+};
+
+function sortCardsByRole(cards: VendorCardOut[]): VendorCardOut[] {
+  return [...cards].sort((a, b) => roleOrder[a.role] - roleOrder[b.role]);
+}
+
+// An incomplete row stays centered instead of stretching one card across the screen.
+function getCardsGridClassName(count: number): string {
+  if (count >= 3) return "grid grid-cols-3 gap-4 max-md:grid-cols-1";
+  if (count === 2) return "mx-auto grid w-full max-w-4xl grid-cols-2 gap-4 max-md:grid-cols-1";
+  return "mx-auto grid w-full max-w-xl grid-cols-1 gap-4";
 }
 
 export const Route = createFileRoute("/results")({
-  validateSearch,
+  validateSearch: validateSearchParams,
   component: ResultsPage,
 });
 
-function getFilters(search: ReturnType<typeof validateSearch>): SearchFilters | null {
-  if (!search.city || !search.event_date || !search.event_format || !search.category) return null;
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(search.event_date)) return null;
-  if (!Number.isInteger(search.budget_kzt) || search.budget_kzt < 1) return null;
-  if (
-    search.duration_hours &&
-    (!Number.isInteger(search.duration_hours) || search.duration_hours < 1)
-  )
-    return null;
-  return {
-    city: search.city as SearchFilters["city"],
-    event_date: search.event_date,
-    event_format: search.event_format as SearchFilters["event_format"],
-    category: search.category as SearchFilters["category"],
-    budget_kzt: search.budget_kzt,
-    duration_hours: search.duration_hours ?? null,
-    languages: search.languages ? (search.languages.split(",") as Schemas["Language"][]) : [],
-  };
-}
-
 function ResultsPage() {
-  const { t } = useLingui();
-  const rejectionLabels: Record<Schemas["RejectionOut"]["reason"], string> = {
-    busy: t`заняты на дату`,
-    format: t`не работают в этом формате`,
-    budget: t`дороже бюджета`,
-    duration: t`не подходят по длительности`,
-    language: t`не работают на выбранном языке`,
-  };
+  const { t, i18n } = useLingui();
   const search = Route.useSearch();
-  const filters = getFilters(search);
+  const filters = getSearchFilters(search);
   const options = useQuery({ queryKey: ["catalog", "options"], queryFn: fetchCatalogOptions });
   const recommendation = useQuery({
     queryKey: ["recommend", filters],
@@ -67,17 +49,19 @@ function ResultsPage() {
     retry: false,
   });
 
-  function getLabel(values: Schemas["OptionOut"][] | undefined, value: string) {
-    return values?.find((option) => option.value === value)?.label ?? value;
+  function getLabel(kind: OptionKind, value: string) {
+    return options.data?.[kind].find((option) => option.value === value)?.label ?? value;
   }
 
   const summary = filters
     ? [
-        getLabel(options.data?.cities, filters.city),
-        getLabel(options.data?.event_formats, filters.event_format),
-        getLabel(options.data?.categories, filters.category),
-        filters.event_date.split("-").reverse().join("."),
-        `${new Intl.NumberFormat("ru-RU").format(filters.budget_kzt)} ₸`,
+        getLabel("cities", filters.city),
+        getLabel("event_formats", filters.event_format),
+        getLabel("categories", filters.category),
+        formatEventDate(filters.event_date, i18n.locale),
+        `${new Intl.NumberFormat(i18n.locale).format(filters.budget_kzt)} ₸`,
+        ...(filters.duration_hours ? [t`до ${filters.duration_hours} ч`] : []),
+        ...(filters.languages ?? []).map((language) => getLabel("languages", language)),
       ]
     : [];
 
@@ -85,17 +69,28 @@ function ResultsPage() {
     <div className="grid gap-6 pb-12">
       <Link
         to="/"
-        className="flex min-h-10 w-fit items-center gap-2 text-sm text-link hover:underline max-md:min-h-11"
+        search={filters ? search : {}}
+        className={buttonVariants({
+          variant: "outline",
+          className:
+            "h-10 w-fit gap-2 px-4 transition active:scale-[0.98] max-md:h-12 max-md:w-full",
+        })}
       >
         <ArrowLeft className="size-4" aria-hidden="true" />
         <Trans>Изменить фильтры</Trans>
       </Link>
-      <header className="grid gap-2">
-        <h1 className="text-2xl font-semibold max-md:text-xl">
-          <Trans>Подбор подрядчиков</Trans>
-        </h1>
-        {filters && <p className="text-sm text-muted-foreground">{summary.join(" · ")}</p>}
-      </header>
+      {filters && (
+        <ul className="flex flex-wrap gap-2" aria-label={t`Выбранные фильтры`}>
+          {summary.map((label) => (
+            <li
+              key={label}
+              className="rounded-full border border-border bg-card px-3 py-1.5 text-base font-medium"
+            >
+              {label}
+            </li>
+          ))}
+        </ul>
+      )}
       {!filters ? (
         <div className="grid justify-items-center gap-3 rounded-lg border border-border bg-card p-8 text-center">
           <SearchX className="size-10 text-muted-foreground" aria-hidden="true" />
@@ -107,12 +102,17 @@ function ResultsPage() {
           </p>
         </div>
       ) : recommendation.isPending ? (
-        <div className="flex min-h-48 items-center gap-3 rounded-lg border border-border bg-card p-6">
-          <LoaderCircle className="size-5 animate-spin" aria-hidden="true" />
-          <p className="text-sm">
+        <section className="grid gap-5" aria-busy="true">
+          <p className="flex items-center gap-2 text-sm text-muted-foreground" role="status">
+            <LoaderCircle className="size-5 animate-spin" aria-hidden="true" />
             <Trans>Подбираю подрядчиков…</Trans>
           </p>
-        </div>
+          <div className={getCardsGridClassName(3)}>
+            {Array.from({ length: 3 }, (_, index) => (
+              <VendorCardSkeleton key={index} />
+            ))}
+          </div>
+        </section>
       ) : recommendation.isError ? (
         <div className="grid gap-3 rounded-lg border border-border bg-card p-6">
           <p className="text-sm text-destructive">
@@ -123,7 +123,7 @@ function ResultsPage() {
             onClick={() => recommendation.refetch()}
             className={buttonVariants({
               variant: "outline",
-              className: "min-h-10 w-fit max-md:min-h-11 max-md:w-full",
+              className: "h-10 w-fit transition active:scale-[0.98] max-md:h-12 max-md:w-full",
             })}
           >
             <Trans>Повторить</Trans>
@@ -136,8 +136,8 @@ function ResultsPage() {
               <h2 className="text-xl font-semibold">
                 <Trans>Подходящие подрядчики</Trans>
               </h2>
-              <div className="grid grid-cols-2 gap-4 max-md:grid-cols-1">
-                {recommendation.data.cards.map((vendor) => (
+              <div className={getCardsGridClassName(recommendation.data.cards.length)}>
+                {sortCardsByRole(recommendation.data.cards).map((vendor) => (
                   <VendorCard key={vendor.id} vendor={vendor} />
                 ))}
               </div>
@@ -155,47 +155,12 @@ function ResultsPage() {
               </p>
             </div>
           )}
-          {recommendation.data.rejections.length > 0 && (
-            <p className="text-sm text-muted-foreground">
-              <Trans>
-                Не прошли фильтры:{" "}
-                {recommendation.data.rejections
-                  .map(({ reason, count }) => `${rejectionLabels[reason]}: ${count}`)
-                  .join(", ")}
-              </Trans>
-            </p>
-          )}
-          {recommendation.data.suggestions.length > 0 && (
-            <div className="grid gap-3">
-              <h2 className="text-base font-semibold">
-                <Trans>Попробуйте другие условия</Trans>
-              </h2>
-              <div className="flex flex-wrap gap-2">
-                {recommendation.data.suggestions.map((suggestion, index) => (
-                  <Link
-                    key={index}
-                    to="/results"
-                    search={{
-                      ...search,
-                      ...(suggestion.event_date ? { event_date: suggestion.event_date } : {}),
-                      ...(suggestion.budget_kzt ? { budget_kzt: suggestion.budget_kzt } : {}),
-                      ...(suggestion.city ? { city: suggestion.city } : {}),
-                    }}
-                    className={buttonVariants({
-                      variant: "outline",
-                      className: "min-h-10 max-md:min-h-11 max-md:w-full",
-                    })}
-                  >
-                    {suggestion.kind === "date"
-                      ? t`Дата: ${suggestion.event_date}`
-                      : suggestion.kind === "budget"
-                        ? t`Бюджет: ${suggestion.budget_kzt} ₸`
-                        : t`Город: ${getLabel(options.data?.cities, suggestion.city ?? "")}`}
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
+          <SearchHints
+            recommendation={recommendation.data}
+            filters={filters}
+            search={search}
+            getLabel={getLabel}
+          />
         </section>
       )}
     </div>

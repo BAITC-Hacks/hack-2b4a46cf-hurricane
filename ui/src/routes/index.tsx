@@ -1,44 +1,71 @@
 import { Trans } from "@lingui/react/macro";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { LoaderCircle, SearchX } from "lucide-react";
+import { SearchX } from "lucide-react";
 import { useState } from "react";
 
 import { fetchCatalogOptions, fetchVendors } from "@/api";
 import { SearchForm, type SearchFilters } from "@/components/SearchForm";
 import { Button } from "@/components/ui/button";
-import { VendorCard } from "@/components/VendorCard";
+import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { VendorCard, VendorCardSkeleton } from "@/components/VendorCard";
+import {
+  getSearchFilters,
+  getSearchParams,
+  validateSearchParams,
+  type SearchParams,
+} from "@/search-params";
 
-export const Route = createFileRoute("/")({ component: HomePage });
+export const Route = createFileRoute("/")({
+  validateSearch: (search: Record<string, unknown>): Partial<SearchParams> =>
+    search.city ? validateSearchParams(search) : {},
+  component: HomePage,
+});
+
+function SearchFormSkeleton() {
+  return (
+    <Card
+      aria-busy="true"
+      className="rounded-lg border border-border bg-card py-6 ring-0 [--card-spacing:--spacing(6)] max-md:py-4 max-md:[--card-spacing:--spacing(4)]"
+    >
+      <CardContent className="grid gap-4">
+        <div className="grid grid-cols-3 gap-3 max-md:grid-cols-1">
+          {Array.from({ length: 5 }, (_, index) => (
+            <div key={index} className="grid gap-2">
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-10 w-full max-md:h-11" />
+            </div>
+          ))}
+        </div>
+        <Skeleton className="h-10 w-full max-md:h-11" />
+        <div className="flex gap-3 max-md:flex-col">
+          <Skeleton className="h-10 w-36 max-md:h-11 max-md:w-full" />
+          <Skeleton className="h-10 w-48 max-md:h-11 max-md:w-full" />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 function HomePage() {
   const navigate = useNavigate();
+  const defaultFilters = getSearchFilters(Route.useSearch());
   const [showAllVendors, setShowAllVendors] = useState(false);
   const options = useQuery({ queryKey: ["catalog", "options"], queryFn: fetchCatalogOptions });
   const vendors = useQuery({ queryKey: ["vendors"], queryFn: fetchVendors });
 
-  function handleSearch(filters: SearchFilters) {
-    navigate({
-      to: "/results",
-      search: {
-        city: filters.city,
-        event_date: filters.event_date,
-        event_format: filters.event_format,
-        category: filters.category,
-        budget_kzt: filters.budget_kzt,
-        ...(filters.duration_hours ? { duration_hours: filters.duration_hours } : {}),
-        ...(filters.languages?.length ? { languages: filters.languages.join(",") } : {}),
-      },
-    });
+  async function handleSearch(filters: SearchFilters) {
+    const search = getSearchParams(filters);
+    // Filters go into the home URL too, so browser Back from results restores them.
+    await navigate({ to: "/", search, replace: true });
+    navigate({ to: "/results", search });
   }
 
   return (
     <div className="grid gap-8 pb-12">
       {options.isPending ? (
-        <div className="flex min-h-40 items-center gap-2 rounded-lg border border-border bg-card p-6 text-sm text-muted-foreground">
-          <LoaderCircle className="size-5 animate-spin" aria-hidden="true" />
-          <Trans>Загружаю фильтры…</Trans>
-        </div>
+        <SearchFormSkeleton />
       ) : options.isError ? (
         <div className="grid gap-3 rounded-lg border border-border bg-card p-6">
           <p className="text-sm text-destructive">
@@ -53,16 +80,21 @@ function HomePage() {
           </Button>
         </div>
       ) : (
-        <SearchForm options={options.data} onSearch={handleSearch} />
+        <SearchForm
+          options={options.data}
+          defaultFilters={defaultFilters}
+          onSearch={handleSearch}
+        />
       )}
       <section className="grid gap-4" aria-live="polite">
         <h2 className="text-xl font-semibold">
           <Trans>Подрядчики</Trans>
         </h2>
         {vendors.isPending ? (
-          <div className="flex min-h-32 items-center gap-2 text-sm text-muted-foreground">
-            <LoaderCircle className="size-5 animate-spin" aria-hidden="true" />
-            <Trans>Загружаю подрядчиков…</Trans>
+          <div className="grid grid-cols-2 gap-4 max-md:grid-cols-1" aria-busy="true">
+            {Array.from({ length: 6 }, (_, index) => (
+              <VendorCardSkeleton key={index} />
+            ))}
           </div>
         ) : vendors.isError ? (
           <div className="grid gap-3 rounded-lg border border-border bg-card p-6">
