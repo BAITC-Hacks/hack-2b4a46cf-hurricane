@@ -53,6 +53,28 @@ function ResultsPage() {
     return options.data?.[kind].find((option) => option.value === value)?.label ?? value;
   }
 
+  // The empty screen names the blocking condition and the way out, not a generic "try again".
+  function getEmptyStateHint(recommendation: Schemas["RecommendOut"]) {
+    if (!filters) return "";
+    if (recommendation.outcome === "no_category_in_city")
+      return recommendation.suggestions.length > 0
+        ? t`В других городах эта категория есть, подсказки ниже.`
+        : t`Такой категории нет ни в одном городе каталога.`;
+    const top = [...recommendation.rejections].sort((a, b) => b.count - a.count)[0];
+    if (!top) return t`Попробуйте изменить дату, бюджет или город.`;
+    const date = formatEventDate(filters.event_date, i18n.locale);
+    const format = getLabel("event_formats", filters.event_format);
+    const budget = new Intl.NumberFormat(i18n.locale).format(filters.budget_kzt);
+    const hints: Record<Schemas["RejectionOut"]["reason"], string> = {
+      busy: t`На ${date} в этой категории все заняты. Соседние даты ниже.`,
+      format: t`Формат «${format}» здесь никто из этой категории не берёт. Попробуйте другой город.`,
+      budget: t`Все варианты дороже ${budget} ₸. Подсказка по бюджету ниже.`,
+      duration: t`Никто не работает ${filters.duration_hours ?? 0} ч подряд. Уберите ограничение по часам.`,
+      language: t`Никто не ведёт на выбранных языках. Уберите требование к языку.`,
+    };
+    return hints[top.reason];
+  }
+
   const summary = filters
     ? [
         getLabel("cities", filters.city),
@@ -151,7 +173,7 @@ function ResultsPage() {
                   : t`По этим условиям подрядчиков не нашлось`}
               </h2>
               <p className="text-sm text-muted-foreground">
-                <Trans>Попробуйте изменить дату, бюджет или город.</Trans>
+                {getEmptyStateHint(recommendation.data)}
               </p>
             </div>
           )}

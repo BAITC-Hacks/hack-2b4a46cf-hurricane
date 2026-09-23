@@ -7,7 +7,7 @@ from datetime import timedelta
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
-from sqlalchemy import func, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.db import get_session
@@ -169,15 +169,22 @@ async def fetch_pool(session: AsyncSession, order: RecommendIn) -> list[Vendor]:
         raise UpstreamError("Каталог не отвечает, повторите запрос") from error
 
 
-async def fetch_city_suggestions(session: AsyncSession, order: RecommendIn) -> list:
-    statement = (
-        select(Vendor.city, func.count())
-        .where(Vendor.categories.any(order.category), Vendor.city != order.city)
-        .group_by(Vendor.city)
-        .order_by(func.count().desc(), Vendor.city)
+def get_city_suggestions(other_cities_pool: list[Vendor], order: RecommendIn) -> list:
+    # Counts vendors that pass every condition, not just exist: "в Астане подходят 2" is actionable.
+    passing = Counter(
+        vendor.city for vendor in other_cities_pool if not get_rejection_reasons(vendor, order)
     )
-    rows = await session.execute(statement)
-    return [SuggestionOut(kind="city", count=count, city=city) for city, count in rows]
+    return [
+        SuggestionOut(kind="city", count=count, city=city)
+        for city, count in sorted(passing.items(), key=lambda pair: (-pair[1], pair[0]))
+    ]
+
+
+async def fetch_city_suggestions(session: AsyncSession, order: RecommendIn) -> list:
+    statement = select(Vendor).where(
+        Vendor.categories.any(order.category), Vendor.city != order.city
+    )
+    return get_city_suggestions(list(await session.scalars(statement)), order)
 
 
 @router.post("/recommend", response_model=RecommendOut)
@@ -201,6 +208,8 @@ async def recommend(
         suggestions = get_date_suggestions(pool, order, len(passed))
         suggestions += get_budget_suggestion(pool, order, len(passed))
         suggestions += get_duration_suggestion(pool, order, len(passed))
+    if not passed:
+        suggestions += await fetch_city_suggestions(session, order)
     busy_count = sum(1 for vendor in pool if order.event_date in vendor.busy_dates)
     cards = await build_cards(pick_role_vendors(passed, order), order, busy_count, len(pool))
     return RecommendOut(

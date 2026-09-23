@@ -165,3 +165,26 @@ def test_valid_llm_text_is_used_only_for_its_card(catalog, monkeypatch):
     assert sources.pop("HK-35215") == "llm"
     assert set(sources.values()) == {"template"}
     assert next(c.explanation for c in response.cards if c.id == "HK-35215") == text
+
+
+def test_alternative_card_names_its_gap_to_the_best_match(catalog):
+    response = get_recommendation("2026-10-17", **HOST_ORDER)
+    alternative = next(card for card in response.cards if card.role == "alternative")
+    assert any(
+        marker in alternative.explanation
+        for marker in ("уступает первому", "дешевле первого", "дороже первого", "равен первому")
+    )
+
+
+def test_no_candidates_pass_suggests_cities_where_the_order_passes(catalog):
+    order = RecommendIn(
+        city="astana",
+        event_date=date(2026, 10, 10),
+        event_format="corporate",
+        category="photographer",
+        budget_kzt=600_000,
+    )
+    other_cities = [v for v in catalog if "photographer" in v.categories and v.city != "astana"]
+    suggestions = recommend.get_city_suggestions(other_cities, order)
+    assert suggestions and all(s.kind == "city" and s.count > 0 for s in suggestions)
+    assert all(s.city != "astana" for s in suggestions)
