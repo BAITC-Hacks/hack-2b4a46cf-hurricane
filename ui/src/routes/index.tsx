@@ -1,61 +1,80 @@
-import { Trans, useLingui } from "@lingui/react/macro";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { Trans } from "@lingui/react/macro";
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, type FormEvent } from "react";
+import { SearchX } from "lucide-react";
+import { useState } from "react";
 
-import { askLlm, fetchHealth } from "@/api";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
+import { SearchForm, type SearchFilters } from "@/components/SearchForm";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const Route = createFileRoute("/")({ component: HomePage });
 
 function HomePage() {
-  const { t } = useLingui();
-  const [prompt, setPrompt] = useState("");
-  const health = useQuery({ queryKey: ["health"], queryFn: fetchHealth });
-  const ask = useMutation({ mutationFn: askLlm });
-
-  function handleSubmit(event: FormEvent) {
-    event.preventDefault();
-    ask.mutate(prompt);
-  }
+  const [selectedFilters, setSelectedFilters] = useState<SearchFilters | null>(null);
 
   return (
-    <Card className="shadow-card">
-      <CardHeader>
-        <CardDescription>
-          <Trans>Статус API:</Trans>{" "}
-          {health.isPending ? (
-            "…"
+    <div className="grid gap-8 pb-12">
+      <section className="grid gap-2">
+        <h1 className="font-heading text-2xl font-semibold leading-8 max-md:text-xl max-md:leading-7">
+          <Trans>Подрядчики под ваше событие</Trans>
+        </h1>
+        <p className="text-sm leading-5 text-muted-foreground">
+          <Trans>Укажите главное — город, дату, формат и бюджет. Остальное можно уточнить.</Trans>
+        </p>
+      </section>
+      <SearchForm onSearch={setSelectedFilters} onReset={() => setSelectedFilters(null)} />
+      <Card
+        className="rounded-lg border border-border py-6 shadow-card ring-0 [--card-spacing:--spacing(6)] max-md:py-4 max-md:[--card-spacing:--spacing(4)]"
+        aria-live="polite"
+      >
+        <CardHeader>
+          <CardTitle className="text-xl font-semibold">
+            {selectedFilters ? <Trans>Фильтры выбраны</Trans> : <Trans>Результаты поиска</Trans>}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-4">
+          {selectedFilters ? (
+            <>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  selectedFilters.city,
+                  selectedFilters.event_format,
+                  selectedFilters.category,
+                  selectedFilters.language,
+                  selectedFilters.duration_hours ? `${selectedFilters.duration_hours} ч` : null,
+                ]
+                  .filter(Boolean)
+                  .map((value) => (
+                    <span
+                      key={value}
+                      className="rounded-full border border-border bg-muted px-2 py-0.5 text-xs font-medium text-foreground"
+                    >
+                      {value}
+                    </span>
+                  ))}
+              </div>
+              <p className="text-base text-muted-foreground">
+                <Trans>
+                  Дата: {selectedFilters.event_date.split("-").reverse().join(".")} · Бюджет:{" "}
+                  {new Intl.NumberFormat("ru-RU").format(selectedFilters.budget_kzt)} ₸
+                </Trans>
+              </p>
+              <p className="text-base leading-6 text-muted-foreground">
+                <Trans>Карточки подрядчиков появятся после подключения поиска к каталогу.</Trans>
+              </p>
+            </>
           ) : (
-            <span className={health.isSuccess ? "text-success" : "text-destructive"}>
-              {health.isSuccess ? t`онлайн` : t`офлайн`}
-            </span>
+            <div className="grid justify-items-center gap-3 py-6 text-center">
+              <SearchX className="size-10 text-muted-foreground" aria-hidden="true" />
+              <h3 className="text-base font-semibold">
+                <Trans>Пока нет результатов</Trans>
+              </h3>
+              <p className="text-xs text-muted-foreground">
+                <Trans>После подключения поиска здесь появятся карточки подрядчиков.</Trans>
+              </p>
+            </div>
           )}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="grid gap-3">
-        <form className="grid gap-3" onSubmit={handleSubmit}>
-          <Textarea
-            value={prompt}
-            onChange={(event) => setPrompt(event.target.value)}
-            placeholder={t`Спросите что-нибудь`}
-            rows={4}
-            maxLength={4000}
-            required
-          />
-          <Button
-            type="submit"
-            disabled={ask.isPending}
-            className="justify-self-start max-md:w-full"
-          >
-            {ask.isPending ? t`Думаю…` : t`Отправить`}
-          </Button>
-        </form>
-        {ask.isError && <p className="text-sm text-destructive">{ask.error.message}</p>}
-        {ask.isSuccess && <p className="whitespace-pre-wrap leading-relaxed">{ask.data.answer}</p>}
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

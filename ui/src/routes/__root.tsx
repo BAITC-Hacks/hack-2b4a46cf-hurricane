@@ -20,20 +20,20 @@ function RootLayout() {
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-8 max-md:px-4 max-md:py-4">
-      <header className="mb-8 flex items-center justify-between max-md:mb-5 max-md:flex-col max-md:items-stretch max-md:gap-3">
-        <h1 className="text-2xl font-semibold max-md:text-xl">
+      <header className="mb-8 flex items-center justify-between gap-3 border-b border-border pb-4 max-md:flex-col max-md:items-stretch">
+        <p className="text-base font-semibold tracking-tight">
           <Link to="/">
-            <Trans>Приложение</Trans>
+            <Trans>EventMatch</Trans>
           </Link>
-        </h1>
-        <div className="flex items-center gap-3 max-md:flex-col max-md:items-stretch">
+        </p>
+        <div className="flex items-center gap-3 max-md:items-stretch">
           <Select value={i18n.locale} onValueChange={(value) => activateLocale(value as Locale)}>
-            <SelectTrigger className="w-24 max-md:w-full">
+            <SelectTrigger className="min-h-10 w-24 max-md:min-h-11 max-md:w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               {locales.map((locale) => (
-                <SelectItem key={locale} value={locale}>
+                <SelectItem key={locale} value={locale} className="min-h-11">
                   {locale.toUpperCase()}
                 </SelectItem>
               ))}

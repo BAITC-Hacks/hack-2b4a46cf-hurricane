@@ -13,30 +13,93 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: src/routes/index.tsx:53
-msgid "Думаю…"
-msgstr "Думаю…"
-
-#: src/routes/index.tsx:33
-msgid "онлайн"
-msgstr "онлайн"
-
-#: src/routes/index.tsx:53
-msgid "Отправить"
-msgstr "Отправить"
-
-#: src/routes/index.tsx:33
-msgid "офлайн"
-msgstr "офлайн"
-
 #: src/routes/__root.tsx:26
-msgid "Приложение"
-msgstr "Приложение"
+msgid "EventMatch"
+msgstr "EventMatch"
 
-#: src/routes/index.tsx:43
-msgid "Спросите что-нибудь"
-msgstr "Спросите что-нибудь"
+#: src/components/SearchForm.tsx:148
+msgid "Бюджет, ₸"
+msgstr "Бюджет, ₸"
 
-#: src/routes/index.tsx:28
-msgid "Статус API:"
-msgstr "Статус API:"
+#: src/components/AuthMenu.tsx:44
+msgid "Выйти"
+msgstr "Выйти"
+
+#: src/components/SearchForm.tsx:118
+msgid "Город"
+msgstr "Город"
+
+#: src/components/SearchForm.tsx:124
+msgid "Дата"
+msgstr "Дата"
+
+#. placeholder {0}: selectedFilters.event_date.split("-").reverse().join(".")
+#. placeholder {1}: new Intl.NumberFormat("ru-RU").format(selectedFilters.budget_kzt)
+#: src/routes/index.tsx:56
+msgid "Дата: {0} · Бюджет: {1} ₸"
+msgstr "Дата: {0} · Бюджет: {1} ₸"
+
+#: src/components/SearchForm.tsx:171
+msgid "Длительность, ч"
+msgstr "Длительность, ч"
+
+#: src/components/SearchForm.tsx:166
+msgid "Дополнительные условия"
+msgstr "Дополнительные условия"
+
+#: src/routes/index.tsx:62
+msgid "Карточки подрядчиков появятся после подключения поиска к каталогу."
+msgstr "Карточки подрядчиков появятся после подключения поиска к каталогу."
+
+#: src/components/SearchForm.tsx:142
+msgid "Категория"
+msgstr "Категория"
+
+#: src/components/SearchForm.tsx:177
+#: src/components/SearchForm.tsx:192
+msgid "Не важно"
+msgstr "Не важно"
+
+#: src/components/SearchForm.tsx:111
+msgid "Параметры события"
+msgstr "Параметры события"
+
+#: src/routes/index.tsx:18
+msgid "Подрядчики под ваше событие"
+msgstr "Подрядчики под ваше событие"
+
+#: src/routes/index.tsx:69
+msgid "Пока нет результатов"
+msgstr "Пока нет результатов"
+
+#: src/routes/index.tsx:72
+msgid "После подключения поиска здесь появятся карточки подрядчиков."
+msgstr "После подключения поиска здесь появятся карточки подрядчиков."
+
+#: src/components/SearchForm.tsx:206
+msgid "Применить"
+msgstr "Применить"
+
+#: src/routes/index.tsx:31
+msgid "Результаты поиска"
+msgstr "Результаты поиска"
+
+#: src/components/SearchForm.tsx:216
+msgid "Сбросить фильтры"
+msgstr "Сбросить фильтры"
+
+#: src/routes/index.tsx:21
+msgid "Укажите главное — город, дату, формат и бюджет. Остальное можно уточнить."
+msgstr "Укажите главное — город, дату, формат и бюджет. Остальное можно уточнить."
+
+#: src/routes/index.tsx:31
+msgid "Фильтры выбраны"
+msgstr "Фильтры выбраны"
+
+#: src/components/SearchForm.tsx:136
+msgid "Формат"
+msgstr "Формат"
+
+#: src/components/SearchForm.tsx:189
+msgid "Язык работы"
+msgstr "Язык работы"
