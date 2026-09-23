@@ -40,7 +40,9 @@ export function VendorCard({ vendor }: { vendor: Vendor }) {
         <p className="text-sm font-medium">
           <Trans>От {new Intl.NumberFormat("ru-RU").format(vendor.price_from_kzt)} ₸</Trans>
         </p>
-        <p className="line-clamp-3 text-sm leading-5 text-muted-foreground">{description}</p>
+        <p className="whitespace-pre-wrap break-words text-sm leading-5 text-muted-foreground">
+          {description}
+        </p>
       </CardContent>
     </Card>
   );
