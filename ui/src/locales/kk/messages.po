@@ -17,89 +17,207 @@ msgstr ""
 msgid "EventMatch"
 msgstr ""
 
-#: src/components/SearchForm.tsx:148
+#: src/components/VendorCard.tsx:17
+msgid "Альтернатива"
+msgstr ""
+
+#: src/components/SearchForm.tsx:132
 msgid "Бюджет, ₸"
 msgstr ""
 
-#: src/components/AuthMenu.tsx:44
-msgid "Выйти"
+#. placeholder {0}: suggestion.budget_kzt
+#: src/routes/results.tsx:192
+msgid "Бюджет: {0} ₸"
 msgstr ""
 
-#: src/components/SearchForm.tsx:118
+#: src/routes/results.tsx:103
+msgid "В ссылке не хватает параметров поиска"
+msgstr ""
+
+#: src/routes/results.tsx:150
+msgid "В этом городе нет подрядчиков выбранной категории"
+msgstr ""
+
+#: src/routes/results.tsx:106
+msgid "Выберите фильтры на главной странице и создайте новую ссылку."
+msgstr ""
+
+#: src/components/SearchForm.tsx:95
 msgid "Город"
 msgstr ""
 
-#: src/components/SearchForm.tsx:124
+#. placeholder {0}: getLabel(options.data?.cities, suggestion.city ?? "")
+#: src/routes/results.tsx:193
+msgid "Город: {0}"
+msgstr ""
+
+#: src/components/SearchForm.tsx:101
 msgid "Дата"
 msgstr ""
 
-#. placeholder {0}: selectedFilters.event_date.split("-").reverse().join(".")
-#. placeholder {1}: new Intl.NumberFormat("ru-RU").format(selectedFilters.budget_kzt)
-#: src/routes/index.tsx:56
-msgid "Дата: {0} · Бюджет: {1} ₸"
+#. placeholder {0}: suggestion.event_date
+#: src/routes/results.tsx:190
+msgid "Дата: {0}"
 msgstr ""
 
-#: src/components/SearchForm.tsx:171
+#: src/components/SearchForm.tsx:156
 msgid "Длительность, ч"
 msgstr ""
 
-#: src/components/SearchForm.tsx:166
+#: src/components/SearchForm.tsx:151
 msgid "Дополнительные условия"
 msgstr ""
 
-#: src/routes/index.tsx:62
-msgid "Карточки подрядчиков появятся после подключения поиска к каталогу."
+#: src/routes/results.tsx:56
+msgid "дороже бюджета"
 msgstr ""
 
-#: src/components/SearchForm.tsx:142
+#: src/routes/index.tsx:73
+msgid "Загружаю подрядчиков…"
+msgstr ""
+
+#: src/routes/index.tsx:48
+msgid "Загружаю фильтры…"
+msgstr ""
+
+#: src/routes/results.tsx:54
+msgid "заняты на дату"
+msgstr ""
+
+#: src/routes/results.tsx:91
+msgid "Изменить фильтры"
+msgstr ""
+
+#: src/components/SearchForm.tsx:124
 msgid "Категория"
 msgstr ""
 
+#: src/components/VendorCard.tsx:15
+msgid "Лучшая цена"
+msgstr ""
+
+#: src/components/VendorCard.tsx:14
+msgid "Лучшее совпадение"
+msgstr ""
+
+#: src/components/SearchForm.tsx:162
 #: src/components/SearchForm.tsx:177
-#: src/components/SearchForm.tsx:192
 msgid "Не важно"
 msgstr ""
 
-#: src/components/SearchForm.tsx:111
+#: src/routes/results.tsx:57
+msgid "не подходят по длительности"
+msgstr ""
+
+#. placeholder {0}: recommendation.data.rejections .map(({ reason, count }) => `${rejectionLabels[reason]}: ${count}`) .join(", ")
+#: src/routes/results.tsx:160
+msgid "Не прошли фильтры: {0}"
+msgstr ""
+
+#: src/routes/results.tsx:55
+msgid "не работают в этом формате"
+msgstr ""
+
+#: src/routes/results.tsx:58
+msgid "не работают на выбранном языке"
+msgstr ""
+
+#: src/routes/index.tsx:78
+msgid "Не удалось загрузить подрядчиков. Попробуйте ещё раз."
+msgstr ""
+
+#: src/routes/index.tsx:53
+msgid "Не удалось загрузить фильтры. Попробуйте ещё раз."
+msgstr ""
+
+#: src/routes/results.tsx:119
+msgid "Не удалось подобрать подрядчиков. Проверьте фильтры и попробуйте ещё раз."
+msgstr ""
+
+#. placeholder {0}: new Intl.NumberFormat("ru-RU").format(vendor.price_from_kzt)
+#: src/components/VendorCard.tsx:41
+msgid "От {0} ₸"
+msgstr ""
+
+#: src/components/SearchForm.tsx:88
 msgid "Параметры события"
 msgstr ""
 
-#: src/routes/index.tsx:18
+#: src/routes/results.tsx:151
+msgid "По этим условиям подрядчиков не нашлось"
+msgstr ""
+
+#: src/routes/index.tsx:60
+#: src/routes/index.tsx:85
+#: src/routes/results.tsx:129
+msgid "Повторить"
+msgstr ""
+
+#: src/routes/results.tsx:113
+msgid "Подбираю подрядчиков…"
+msgstr ""
+
+#: src/routes/results.tsx:95
+msgid "Подбор подрядчиков"
+msgstr ""
+
+#: src/components/SearchForm.tsx:190
+msgid "Подобрать"
+msgstr ""
+
+#: src/routes/index.tsx:68
+msgid "Подрядчики"
+msgstr ""
+
+#: src/routes/index.tsx:39
 msgid "Подрядчики под ваше событие"
 msgstr ""
 
-#: src/routes/index.tsx:69
-msgid "Пока нет результатов"
+#: src/routes/index.tsx:92
+msgid "Подрядчиков пока нет"
 msgstr ""
 
-#: src/routes/index.tsx:72
-msgid "После подключения поиска здесь появятся карточки подрядчиков."
+#: src/routes/results.tsx:137
+msgid "Подходящие подрядчики"
 msgstr ""
 
-#: src/components/SearchForm.tsx:206
-msgid "Применить"
+#. placeholder {0}: vendors.data.length
+#: src/routes/index.tsx:111
+msgid "Показать всех подрядчиков ({0})"
 msgstr ""
 
-#: src/routes/index.tsx:31
-msgid "Результаты поиска"
+#: src/routes/index.tsx:95
+msgid "Попробуйте вернуться позже."
 msgstr ""
 
-#: src/components/SearchForm.tsx:216
+#: src/routes/results.tsx:171
+msgid "Попробуйте другие условия"
+msgstr ""
+
+#: src/routes/results.tsx:154
+msgid "Попробуйте изменить дату, бюджет или город."
+msgstr ""
+
+#: src/components/VendorCard.tsx:16
+msgid "Премиум"
+msgstr ""
+
+#: src/components/SearchForm.tsx:200
 msgid "Сбросить фильтры"
 msgstr ""
 
-#: src/routes/index.tsx:21
-msgid "Укажите главное — город, дату, формат и бюджет. Остальное можно уточнить."
+#: src/components/VendorCard.tsx:30
+msgid "Синтетический профиль"
 msgstr ""
 
-#: src/routes/index.tsx:31
-msgid "Фильтры выбраны"
+#: src/routes/index.tsx:42
+msgid "Укажите город, дату, формат и бюджет, чтобы найти подходящих подрядчиков."
 msgstr ""
 
-#: src/components/SearchForm.tsx:136
+#: src/components/SearchForm.tsx:113
 msgid "Формат"
 msgstr ""
 
-#: src/components/SearchForm.tsx:189
+#: src/components/SearchForm.tsx:174
 msgid "Язык работы"
 msgstr ""

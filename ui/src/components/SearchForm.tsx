@@ -2,6 +2,7 @@ import { Trans, useLingui } from "@lingui/react/macro";
 import { RotateCcw, Search, SlidersHorizontal } from "lucide-react";
 import { useState, type FormEvent } from "react";
 
+import type { Schemas } from "@/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -12,50 +13,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export interface SearchFilters {
-  city: string;
-  event_date: string;
-  event_format: string;
-  category: string;
-  budget_kzt: number;
-  duration_hours: number | null;
-  language: string | null;
-}
+export type SearchFilters = Schemas["RecommendIn"];
+type CatalogOptions = Schemas["CatalogOptionsOut"];
+type Option = Schemas["OptionOut"];
 
-// STUB: replace these choices with catalog options from the API when search is connected.
-const options = {
-  cities: ["Алматы", "Астана", "Зарубежье"],
-  event_formats: ["свадьба", "той", "корпоратив", "конференция", "юбилей", "день рождения"],
-  categories: [
-    "Ведущий",
-    "Фотограф",
-    "Банкетный зал",
-    "Флорист",
-    "Декоратор",
-    "Подарки и сувениры",
-    "Ведущий церемонии",
-    "Фото и видеобудки",
-    "Отель",
-    "Инструменталист",
-  ],
-  languages: ["русский", "казахский", "английский"],
-  date_from: "2026-09-23",
-  date_to: "2026-12-31",
-};
-
-const initialFilters: SearchFilters = {
-  city: "Алматы",
-  event_date: options.date_from,
-  event_format: "корпоратив",
-  category: "Ведущий",
-  budget_kzt: 1500000,
-  duration_hours: null,
-  language: null,
-};
-
-interface SearchFormProps {
-  onSearch: (filters: SearchFilters) => void;
-  onReset: () => void;
+function getInitialFilters(options: CatalogOptions): SearchFilters {
+  return {
+    city: options.cities[0].value as SearchFilters["city"],
+    event_date: options.date_from,
+    event_format: options.event_formats[0].value as SearchFilters["event_format"],
+    category: options.categories[0].value as SearchFilters["category"],
+    budget_kzt: 1_500_000,
+    duration_hours: null,
+    languages: [],
+  };
 }
 
 function FilterSelect({
@@ -67,7 +38,7 @@ function FilterSelect({
 }: {
   label: string;
   value: string;
-  options: string[];
+  options: Option[];
   onChange: (value: string) => void;
   anyLabel?: string;
 }) {
@@ -76,12 +47,19 @@ function FilterSelect({
       {label}
       <Select value={value} onValueChange={(selected) => selected && onChange(selected)}>
         <SelectTrigger className="min-h-10 w-full bg-background px-3 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 max-md:min-h-11">
-          <SelectValue />
+          <SelectValue>
+            {value === "any" ? anyLabel : options.find((option) => option.value === value)?.label}
+          </SelectValue>
         </SelectTrigger>
         <SelectContent>
+          {anyLabel && (
+            <SelectItem value="any" className="min-h-11 px-3">
+              {anyLabel}
+            </SelectItem>
+          )}
           {options.map((option) => (
-            <SelectItem key={option} value={option} className="min-h-11 px-3">
-              {option === "any" ? anyLabel : option}
+            <SelectItem key={option.value} value={option.value} className="min-h-11 px-3">
+              {option.label}
             </SelectItem>
           ))}
         </SelectContent>
@@ -90,18 +68,19 @@ function FilterSelect({
   );
 }
 
-export function SearchForm({ onSearch, onReset }: SearchFormProps) {
+export function SearchForm({
+  options,
+  onSearch,
+}: {
+  options: CatalogOptions;
+  onSearch: (filters: SearchFilters) => void;
+}) {
   const { t } = useLingui();
-  const [filters, setFilters] = useState<SearchFilters>({ ...initialFilters });
+  const [filters, setFilters] = useState<SearchFilters>(() => getInitialFilters(options));
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     onSearch(filters);
-  }
-
-  function handleReset() {
-    setFilters({ ...initialFilters });
-    onReset();
   }
 
   return (
@@ -118,7 +97,7 @@ export function SearchForm({ onSearch, onReset }: SearchFormProps) {
               label={t`Город`}
               value={filters.city}
               options={options.cities}
-              onChange={(city) => setFilters({ ...filters, city })}
+              onChange={(city) => setFilters({ ...filters, city: city as SearchFilters["city"] })}
             />
             <label className="grid min-w-0 gap-2 text-sm font-medium">
               <Trans>Дата</Trans>
@@ -136,13 +115,20 @@ export function SearchForm({ onSearch, onReset }: SearchFormProps) {
               label={t`Формат`}
               value={filters.event_format}
               options={options.event_formats}
-              onChange={(event_format) => setFilters({ ...filters, event_format })}
+              onChange={(event_format) =>
+                setFilters({
+                  ...filters,
+                  event_format: event_format as SearchFilters["event_format"],
+                })
+              }
             />
             <FilterSelect
               label={t`Категория`}
               value={filters.category}
               options={options.categories}
-              onChange={(category) => setFilters({ ...filters, category })}
+              onChange={(category) =>
+                setFilters({ ...filters, category: category as SearchFilters["category"] })
+              }
             />
             <label className="grid min-w-0 gap-2 text-sm font-medium">
               <Trans>Бюджет, ₸</Trans>
@@ -150,6 +136,7 @@ export function SearchForm({ onSearch, onReset }: SearchFormProps) {
                 type="number"
                 required
                 min="1"
+                max="50000000"
                 step="1"
                 inputMode="numeric"
                 value={filters.budget_kzt}
@@ -187,30 +174,29 @@ export function SearchForm({ onSearch, onReset }: SearchFormProps) {
               </label>
               <FilterSelect
                 label={t`Язык работы`}
-                value={filters.language ?? "any"}
-                options={["any", ...options.languages]}
+                value={filters.languages?.[0] ?? "any"}
+                options={options.languages}
                 anyLabel={t`Не важно`}
                 onChange={(language) =>
-                  setFilters({ ...filters, language: language === "any" ? null : language })
+                  setFilters({
+                    ...filters,
+                    languages: language === "any" ? [] : [language as Schemas["Language"]],
+                  })
                 }
               />
             </div>
           </details>
           <div className="flex items-center gap-3 max-md:flex-col max-md:items-stretch">
-            <Button
-              type="submit"
-              size="lg"
-              className="h-10 px-6 focus-visible:ring-2 focus-visible:ring-offset-2 max-md:h-11 max-md:w-full"
-            >
+            <Button type="submit" size="lg" className="h-10 px-6 max-md:h-11 max-md:w-full">
               <Search className="size-4" />
-              <Trans>Применить</Trans>
+              <Trans>Подобрать</Trans>
             </Button>
             <Button
               type="button"
               variant="outline"
               size="lg"
-              onClick={handleReset}
-              className="h-10 px-6 focus-visible:ring-2 focus-visible:ring-offset-2 max-md:h-11 max-md:w-full"
+              onClick={() => setFilters(getInitialFilters(options))}
+              className="h-10 px-6 max-md:h-11 max-md:w-full"
             >
               <RotateCcw className="size-4" />
               <Trans>Сбросить фильтры</Trans>

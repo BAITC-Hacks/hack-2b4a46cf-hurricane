@@ -16,3 +16,17 @@ export function unwrap<T>({ data, error, response }: Result<T>): T {
   const detail = (error as { detail?: unknown } | undefined)?.detail;
   throw new Error(typeof detail === "string" ? detail : response.statusText || "Request failed");
 }
+
+export async function fetchCatalogOptions(): Promise<Schemas["CatalogOptionsOut"]> {
+  return unwrap(await client.GET("/catalog/options"));
+}
+
+export async function fetchVendors(): Promise<Schemas["VendorOut"][]> {
+  return unwrap(await client.GET("/vendors"));
+}
+
+export async function fetchRecommendations(
+  filters: Schemas["RecommendIn"],
+): Promise<Schemas["RecommendOut"]> {
+  return unwrap(await client.POST("/recommend", { body: filters }));
+}
