@@ -41,6 +41,8 @@ const budgetPresets: Partial<Record<SearchFilters["category"], number[]>> = {
   "country-venue": [2_500_000, 3_000_000, 4_000_000],
 };
 
+const MAX_BUDGET_KZT = 50_000_000;
+
 function getInitialFilters(options: CatalogOptions): SearchFilters {
   return {
     city: options.cities[0].value as SearchFilters["city"],
@@ -51,6 +53,11 @@ function getInitialFilters(options: CatalogOptions): SearchFilters {
     duration_hours: null,
     languages: [],
   };
+}
+
+// Text input instead of type="number": a number input keeps a leading 0 after clearing and cannot show thousands separators.
+function getBudgetFromInput(value: string): number {
+  return Math.min(Number(value.replace(/\D/g, "")), MAX_BUDGET_KZT);
 }
 
 function FilterSelect({
@@ -102,6 +109,7 @@ export function SearchForm({
   onSearch: (filters: SearchFilters) => void;
 }) {
   const { t, i18n } = useLingui();
+  const kzt = new Intl.NumberFormat(i18n.locale);
   const compactKzt = new Intl.NumberFormat(i18n.locale, { notation: "compact" });
   const [filters, setFilters] = useState<SearchFilters>(
     () => defaultFilters ?? getInitialFilters(options),
@@ -158,15 +166,14 @@ export function SearchForm({
               <label className="grid min-w-0 gap-2 text-sm font-medium">
                 <Trans>Бюджет, ₸</Trans>
                 <input
-                  type="number"
+                  type="text"
                   required
-                  min="1"
-                  max="50000000"
-                  step="1"
                   inputMode="numeric"
-                  value={filters.budget_kzt}
+                  autoComplete="off"
+                  enterKeyHint="search"
+                  value={filters.budget_kzt ? kzt.format(filters.budget_kzt) : ""}
                   onChange={(event) =>
-                    setFilters({ ...filters, budget_kzt: Number(event.target.value) })
+                    setFilters({ ...filters, budget_kzt: getBudgetFromInput(event.target.value) })
                   }
                   className="h-10 min-w-0 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 max-md:h-11"
                 />
